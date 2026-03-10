@@ -1,0 +1,56 @@
+# GOV.UK Prototype Engine
+
+A web app that generates GOV.UK Prototype Kit v13 prototypes from a plain English brief.
+
+---
+
+## What it does
+
+A designer describes a service in plain English. The app calls Claude, which returns a complete prototype spec. The app turns that spec into a working GOV.UK Prototype Kit project and gives the designer a zip to download.
+
+---
+
+## Running locally
+```
+npm install
+ANTHROPIC_API_KEY=your-key-here npm start
+```
+
+Open http://localhost:3000
+
+---
+
+## Deploying to Render
+
+1. Push this repo to GitHub
+2. Create a new Web Service on Render pointing at the repo
+3. Build command: `npm install`
+4. Start command: `npm start`
+5. Add environment variable: `ANTHROPIC_API_KEY` = your Anthropic API key
+6. Deploy
+
+---
+
+## Environment variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `ANTHROPIC_API_KEY` | Yes | Your Anthropic API key from console.anthropic.com |
+| `PORT` | No | Port to run on (Render sets this automatically) |
+
+---
+
+## What the generated prototype includes
+
+- Start page with service description and what the user needs
+- Three to five question pages with working GDS components
+- Server-side validation with error summaries on every question
+- Check your answers page
+- Confirmation page with a generated reference number
+- At least one ineligibility route
+
+---
+
+## Cost
+
+Each prototype generation costs roughly 2–5p in Claude API usage depending on brief length.
