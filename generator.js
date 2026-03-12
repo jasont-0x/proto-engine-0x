@@ -6,8 +6,7 @@ function safe(str) {
 function generateRoutesJs(spec) {
   const { questions, referencePrefix } = spec;
 
-  let routes = `const express = require('express')
-const router = express.Router()
+  let routes = `const router = require('govuk-prototype-kit/lib/utils').getRouter()
 
 function generateReference(prefix) {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
