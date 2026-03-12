@@ -35,13 +35,7 @@ async function createGitHubRepo(repoName, token) {
   return await res.json();
 }
 
-async function pushFileToGitHub(owner, repo, filePath, content, token, sha = null) {
-  const body = {
-    message: `Add ${filePath}`,
-    content: Buffer.from(content).toString('base64')
-  };
-  if (sha) body.sha = sha;
-
+async function pushFileToGitHub(owner, repo, filePath, content, token) {
   const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`, {
     method: 'PUT',
     headers: {
@@ -49,9 +43,11 @@ async function pushFileToGitHub(owner, repo, filePath, content, token, sha = nul
       'Accept': 'application/vnd.github.v3+json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(body)
+    body: JSON.stringify({
+      message: `Add ${filePath}`,
+      content: Buffer.from(content).toString('base64')
+    })
   });
-
   if (!res.ok) {
     const err = await res.json();
     throw new Error(`Failed to push ${filePath}: ${err.message}`);
@@ -62,7 +58,6 @@ async function pushFileToGitHub(owner, repo, filePath, content, token, sha = nul
 async function pushAllFiles(owner, repoName, files, token) {
   for (const [filePath, content] of Object.entries(files)) {
     await pushFileToGitHub(owner, repoName, filePath, content, token);
-    // Small delay to avoid GitHub rate limiting
     await new Promise(r => setTimeout(r, 200));
   }
 }
@@ -97,37 +92,25 @@ async function createRenderService(repoUrl, serviceName, renderApiKey, ownerId) 
       }
     })
   });
-
   if (!res.ok) {
     const err = await res.json();
     throw new Error(`Render service creation failed: ${JSON.stringify(err)}`);
   }
-
-  const data = await res.json();
-  return data;
+  return await res.json();
 }
 
-async function waitForDeploy(serviceId, renderApiKey, maxWaitMs = 300000) {
+async function pollUntilLive(protoUrl, maxWaitMs = 300000) {
   const start = Date.now();
   while (Date.now() - start < maxWaitMs) {
-    await new Promise(r => setTimeout(r, 10000)); // poll every 10 seconds
-
-    const res = await fetch(`https://api.render.com/v1/services/${serviceId}`, {
-      headers: {
-        'Authorization': `Bearer ${renderApiKey}`,
-        'Accept': 'application/json'
-      }
-    });
-
-    if (!res.ok) continue;
-    const data = await res.json();
-    const state = data.service?.serviceDetails?.url ? 'live' : null;
-
-    if (state === 'live' || data.service?.suspended === 'not_suspended') {
-      return data.service;
+    await new Promise(r => setTimeout(r, 15000));
+    try {
+      const res = await fetch(protoUrl, { timeout: 10000 });
+      if (res.ok || res.status === 302 || res.status === 301) return true;
+    } catch (e) {
+      // still deploying
     }
   }
-  throw new Error('Deploy timed out after 5 minutes');
+  throw new Error('Prototype took too long to deploy. Try opening the link in a minute.');
 }
 
 // ─── Frontend ─────────────────────────────────────────────────────────────────
@@ -139,160 +122,596 @@ app.get('/', (req, res) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GOV.UK Prototype Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
-    .govuk-header { background: #0b0c0c; padding: 12px 0; border-bottom: 10px solid #1d70b8; }
-    .govuk-header__inner { max-width: 960px; margin: 0 auto; padding: 0 30px; display: flex; align-items: center; gap: 20px; }
-    .govuk-header__crown { display: flex; align-items: center; gap: 10px; color: white; text-decoration: none; }
-    .crown-svg { width: 36px; height: 32px; fill: white; }
-    .govuk-header__logotype-text { font-size: 30px; font-weight: 700; color: white; letter-spacing: -1px; }
-    .govuk-header__service-name { color: white; font-size: 19px; font-weight: 400; border-left: 1px solid #626a6e; padding-left: 20px; margin-left: 10px; }
-    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
-    .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 60px; align-items: start; }
-    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 20px; }
-    .lede { font-size: 20px; color: #0b0c0c; margin-bottom: 40px; line-height: 1.5; }
-    label { display: block; font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 8px; }
-    .hint { font-size: 16px; color: #505a5f; margin-bottom: 10px; }
-    textarea, input[type="text"], input[type="url"] { width: 100%; padding: 10px; font-size: 19px; font-family: inherit; border: 2px solid #0b0c0c; border-radius: 0; background: white; color: #0b0c0c; margin-bottom: 24px; }
-    textarea:focus, input:focus { outline: 3px solid #ffdd00; outline-offset: 0; box-shadow: inset 0 0 0 2px #0b0c0c; }
+
+    :root {
+      --govuk-black: #0b0c0c;
+      --govuk-blue: #1d70b8;
+      --govuk-green: #00703c;
+      --govuk-red: #d4351c;
+      --govuk-yellow: #ffdd00;
+      --govuk-light-grey: #f3f2f1;
+      --govuk-mid-grey: #b1b4b6;
+      --govuk-dark-grey: #505a5f;
+      --accent: #ffdd00;
+    }
+
+    body {
+      font-family: 'DM Sans', arial, sans-serif;
+      background: #0b0c0c;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      background: #0b0c0c;
+      border-bottom: 4px solid var(--accent);
+      padding: 16px 0;
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 30px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .govuk-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+    .crown { width: 32px; height: 28px; fill: white; }
+    .govuk-name { font-size: 26px; font-weight: 700; color: white; letter-spacing: -0.5px; }
+    .service-name {
+      font-size: 15px;
+      color: rgba(255,255,255,0.6);
+      border-left: 1px solid rgba(255,255,255,0.2);
+      padding-left: 16px;
+      margin-left: 6px;
+      font-family: 'DM Mono', monospace;
+      letter-spacing: 0.02em;
+    }
+
+    /* Main layout */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 30px 80px;
+      flex: 1;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 80px;
+      align-items: start;
+    }
+
+    /* Left column */
+    .hero-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 52px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.05;
+      margin-bottom: 20px;
+      letter-spacing: -1.5px;
+    }
+    h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .lede {
+      font-size: 18px;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 48px;
+      line-height: 1.6;
+      max-width: 500px;
+    }
+
+    /* Form */
+    .field { margin-bottom: 28px; }
+    label {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+    .hint { font-size: 13px; color: rgba(255,255,255,0.45); margin-bottom: 8px; font-family: 'DM Mono', monospace; }
+    textarea, input[type="url"] {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 16px;
+      font-family: 'DM Sans', sans-serif;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 2px;
+      color: white;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    textarea:focus, input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: rgba(255,221,0,0.04);
+    }
     textarea { resize: vertical; }
-    .file-upload-label { display: inline-block; padding: 8px 14px; background: #f3f2f1; border: 2px solid #0b0c0c; cursor: pointer; font-size: 16px; margin-bottom: 8px; }
-    .file-name { font-size: 16px; color: #505a5f; margin-bottom: 24px; }
+    textarea::placeholder, input::placeholder { color: rgba(255,255,255,0.25); }
+
+    .file-row { display: flex; align-items: center; gap: 12px; }
+    .file-btn {
+      padding: 8px 14px;
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.7);
+      font-size: 13px;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .file-btn:hover { border-color: white; color: white; }
+    .file-name { font-size: 13px; color: rgba(255,255,255,0.4); font-family: 'DM Mono', monospace; }
     input[type="file"] { display: none; }
-    .generate-btn { background: #00703c; color: white; border: none; padding: 13px 22px; font-size: 19px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-    .generate-btn:hover { background: #005a30; }
-    .generate-btn:focus { outline: 3px solid #ffdd00; outline-offset: 0; }
-    .generate-btn:disabled { background: #505a5f; cursor: not-allowed; }
-    .btn-arrow { width: 20px; height: 20px; fill: white; }
-    .status-box { display: none; background: white; border-left: 5px solid #1d70b8; padding: 20px; margin-top: 30px; }
-    .status-box.visible { display: block; }
-    .status-box.success { border-color: #00703c; }
-    .status-box.error { border-color: #d4351c; }
-    .status-title { font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 8px; }
-    .status-msg { font-size: 16px; color: #0b0c0c; line-height: 1.5; }
-    .proto-url { display: inline-block; background: #1d70b8; color: white; padding: 10px 18px; font-size: 16px; font-weight: 700; font-family: inherit; text-decoration: none; margin-top: 16px; }
-    .proto-url:hover { background: #003078; }
-    .steps { background: white; padding: 24px; border: 1px solid #b1b4b6; }
-    .steps h2 { font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 16px; }
-    .steps ol { padding-left: 20px; }
-    .steps li { font-size: 16px; color: #0b0c0c; margin-bottom: 12px; line-height: 1.5; }
-    .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+
+    /* Generate button */
+    .generate-btn {
+      background: var(--accent);
+      color: #0b0c0c;
+      border: none;
+      padding: 16px 28px;
+      font-size: 17px;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: -0.2px;
+    }
+    .generate-btn:hover:not(:disabled) { background: #e6c800; transform: translateY(-1px); }
+    .generate-btn:active:not(:disabled) { transform: translateY(0); }
+    .generate-btn:disabled { background: rgba(255,221,0,0.3); color: rgba(0,0,0,0.4); cursor: not-allowed; transform: none; }
+    .btn-arrow { width: 18px; height: 18px; fill: currentColor; transition: transform 0.2s; }
+    .generate-btn:hover:not(:disabled) .btn-arrow { transform: translateX(3px); }
+
+    /* Progress panel */
+    #progressPanel {
+      display: none;
+      margin-top: 36px;
+      background: rgba(255,255,255,0.04);
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    #progressPanel.visible { display: block; }
+    #progressPanel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #progressPanel.p10::before { transform: scaleX(0.10); }
+    #progressPanel.p30::before { transform: scaleX(0.30); }
+    #progressPanel.p50::before { transform: scaleX(0.50); }
+    #progressPanel.p70::before { transform: scaleX(0.70); }
+    #progressPanel.p85::before { transform: scaleX(0.85); }
+    #progressPanel.p100::before { transform: scaleX(1.0); background: #00703c; }
+    #progressPanel.error-state::before { background: var(--govuk-red); transform: scaleX(1); }
+
+    .progress-steps { list-style: none; margin-bottom: 20px; }
+    .progress-steps li {
+      font-size: 14px;
+      font-family: 'DM Mono', monospace;
+      color: rgba(255,255,255,0.35);
+      padding: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: color 0.3s;
+    }
+    .progress-steps li:last-child { border-bottom: none; }
+    .progress-steps li.active { color: white; }
+    .progress-steps li.done { color: #00703c; }
+    .progress-steps li.error-step { color: var(--govuk-red); }
+    .step-icon { width: 16px; text-align: center; font-size: 13px; flex-shrink: 0; }
+    .step-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+
+    /* Spinner */
+    .spin {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .progress { font-size: 14px; color: #505a5f; margin-top: 8px; }
-    footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
-    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } h1 { font-size: 32px; } }
+
+    /* Done state */
+    #donePanel {
+      display: none;
+      margin-top: 36px;
+      padding: 36px;
+      background: rgba(0, 112, 60, 0.12);
+      border: 1.5px solid rgba(0, 112, 60, 0.4);
+      border-radius: 4px;
+      text-align: center;
+      animation: fadeUp 0.5s ease forwards;
+    }
+    #donePanel.visible { display: block; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .done-tick {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: #00703c;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .done-tick svg { width: 28px; height: 28px; fill: none; stroke: white; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .done-tick svg path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: drawTick 0.4s ease 0.4s forwards; }
+    @keyframes drawTick { to { stroke-dashoffset: 0; } }
+    .done-heading { font-size: 22px; font-weight: 700; color: white; margin-bottom: 8px; letter-spacing: -0.3px; }
+    .done-sub { font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 24px; font-family: 'DM Mono', monospace; }
+    .open-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #00703c;
+      color: white;
+      text-decoration: none;
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'DM Sans', sans-serif;
+      border-radius: 2px;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .open-btn:hover { background: #005a30; transform: translateY(-1px); }
+    .open-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* Error state */
+    #errorPanel {
+      display: none;
+      margin-top: 36px;
+      padding: 24px 28px;
+      background: rgba(212, 53, 28, 0.08);
+      border: 1.5px solid rgba(212, 53, 28, 0.35);
+      border-radius: 4px;
+      animation: fadeUp 0.3s ease forwards;
+    }
+    #errorPanel.visible { display: block; }
+    .error-heading { font-size: 16px; font-weight: 700; color: #f47738; margin-bottom: 6px; }
+    .error-msg { font-size: 14px; color: rgba(255,255,255,0.6); font-family: 'DM Mono', monospace; line-height: 1.5; }
+
+    /* Right column — how it works */
+    .sidebar {
+      position: sticky;
+      top: 40px;
+    }
+    .sidebar-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 20px;
+    }
+    .steps { list-style: none; }
+    .steps li {
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+    .steps li:last-child { border-bottom: none; }
+    .step-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      min-width: 20px;
+      padding-top: 2px;
+    }
+    .step-text { font-size: 15px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+    .step-text strong { color: white; font-weight: 600; display: block; margin-bottom: 2px; }
+
+    .cost-note {
+      margin-top: 28px;
+      padding: 16px;
+      background: rgba(255,221,0,0.05);
+      border-left: 3px solid var(--accent);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.6;
+    }
+    .cost-note strong { color: var(--accent); }
+
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 20px 30px;
+      text-align: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; gap: 60px; }
+      h1 { font-size: 38px; }
+      .sidebar { position: static; }
+    }
   </style>
 </head>
 <body>
-<header class="govuk-header">
-  <div class="govuk-header__inner">
-    <a href="/" class="govuk-header__crown">
-      <svg class="crown-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 97" focusable="false">
+
+<header class="header">
+  <div class="header-inner">
+    <a href="/" class="govuk-logo">
+      <svg class="crown" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 97" focusable="false" aria-hidden="true">
         <path d="M25 30.2c3.5 1.5 7.7-.2 9.1-3.7 1.5-3.6-.2-7.8-3.9-9.2-3.6-1.4-7.6.3-9.1 3.9-1.4 3.5.3 7.5 3.9 9zM9 39.5c3.6 1.5 7.8-.2 9.2-3.7 1.5-3.6-.3-7.8-3.9-9.1-3.6-1.5-7.6.2-9.1 3.8-1.4 3.5.3 7.5 3.8 9zM4.4 57.2c3.5 1.5 7.7-.2 9.1-3.8 1.5-3.6-.2-7.7-3.9-9.1-3.5-1.5-7.6.3-9.1 3.8-1.4 3.5.3 7.6 3.9 9.1zm38.3-21.4c3.5 1.5 7.7-.2 9.1-3.8 1.5-3.6-.2-7.7-3.9-9.1-3.6-1.5-7.6.3-9.1 3.8-1.3 3.6.4 7.7 3.9 9.1zm64.4-5.6c-3.6 1.5-7.8-.2-9.1-3.7-1.5-3.6.2-7.8 3.8-9.2 3.6-1.4 7.7.3 9.2 3.9 1.3 3.5-.4 7.5-3.9 9zm15.9 9.3c-3.6 1.5-7.7-.2-9.1-3.7-1.5-3.6.2-7.8 3.7-9.1 3.6-1.5 7.7.2 9.2 3.8 1.5 3.5-.3 7.5-3.8 9zm4.7 17.7c-3.6 1.5-7.8-.2-9.2-3.8-1.5-3.6.2-7.7 3.9-9.1 3.6-1.5 7.7.3 9.2 3.8 1.3 3.5-.4 7.6-3.9 9.1zM89.3 35.8c-3.6 1.5-7.8-.2-9.2-3.8-1.4-3.6.2-7.7 3.9-9.1 3.6-1.5 7.7.3 9.2 3.8 1.4 3.6-.3 7.7-3.9 9.1zM69.7 17.7l8.9 4.7V9.3l-8.9 2.8c-.2-.3-.5-.6-.9-.9L72.4 0H59.6l3.5 11.2c-.3.3-.6.5-.9.9l-8.8-2.8v13.1l8.8-4.7c.3.3.6.7.9.9l-5 15.4v.1h14.2v-.1l-5-15.4c.4-.2.7-.6 1-.9zM66 92.8c16.9 0 32.8 1.1 47.1 3.2 4-16.9 8.9-26.7 14-33.5l-9.6-3.4c1 4.9 1.1 7.2 0 10.2-1.5-1.4-3-4.3-4.2-8.7L108.6 76c2.8-2 5-3.2 7.5-3.3-4.4 9.4-10 11.9-13.6 11.2-4.3-.8-6.3-4.6-5.6-7.9 1-4.7 5.7-5.9 8-.5 4.3-8.7-3-11.4-7.6-8.8 7.1-7.2 7.9-13.5 2.1-21.1-8 6.1-8.1 12.3-4.5 20.8-4.7-5.4-12.1-2.5-9.5 6.2 3.4-5.2 7.9-2 7.2 3.1-.6 4.3-6.4 7.8-13.5 7.2-10.3-.9-10.9-8-11.2-13.8 2.5-.5 7.1 1.8 11 7.3L80.2 60c-4.1 4.4-8 5.3-12.3 5.4 1.4-4.4 8-11.6 8-11.6H55.5s6.4 7.2 7.9 11.6c-4.2-.1-8-1-12.3-5.4l1.4 16.4c3.9-5.5 8.5-7.7 10.9-7.3-.3 5.8-.9 12.8-11.1 13.8-7.2.6-12.9-2.9-13.5-7.2-.7-5 3.8-8.3 7.1-3.1 2.7-8.7-4.6-11.6-9.4-6.2 3.7-8.5 3.6-14.7-4.6-20.8-5.8 7.6-5 13.9 2.2 21.1-4.7-2.6-11.9.1-7.7 8.8 2.3-5.5 7.1-4.2 8.1.5.7 3.3-1.3 7.1-5.7 7.9-3.5.7-9-1.8-13.5-11.2 2.5.1 4.7 1.3 7.5 3.3l-4.7-15.4c-1.2 4.4-2.7 7.2-4.3 8.7-1.1-3-.9-5.3 0-10.2l-9.5 3.4c5 6.9 9.9 16.7 14 33.5 14.8-2.1 30.8-3.2 47.7-3.2z"/>
       </svg>
-      <span class="govuk-header__logotype-text">GOV.UK</span>
+      <span class="govuk-name">GOV.UK</span>
     </a>
-    <span class="govuk-header__service-name">Prototype Engine</span>
+    <span class="service-name">prototype-engine</span>
   </div>
 </header>
+
 <main>
-  <div class="two-col">
-    <div>
-      <h1>Build a GOV.UK prototype</h1>
-      <p class="lede">Describe the service you need to prototype. One sentence is enough. Add a PDF or URL if you have more detail.</p>
-      <form id="generateForm" enctype="multipart/form-data">
-        <div>
-          <label for="brief">Describe your service</label>
-          <p class="hint">What does the user need to do, and why?</p>
-          <textarea id="brief" name="brief" rows="5" placeholder="Example: A service for parents to apply for free school meals for their child."></textarea>
-        </div>
-        <div>
-          <label for="pdf">Upload a PDF (optional)</label>
-          <p class="hint">Policy documents, existing service specs, research findings.</p>
-          <label class="file-upload-label" for="pdf">Choose file</label>
-          <input type="file" id="pdf" name="pdf" accept=".pdf">
-          <div class="file-name" id="fileName">No file chosen</div>
-        </div>
-        <div>
-          <label for="url">Reference URL (optional)</label>
-          <p class="hint">A live service or document to reference.</p>
-          <input type="url" id="url" name="url" placeholder="https://www.gov.uk/example">
-        </div>
-        <button type="submit" class="generate-btn" id="generateBtn">
-          <span id="btnText">Generate prototype</span>
-          <svg class="btn-arrow" id="btnArrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
-            <path d="M0 20h40l-8-8 4-4 16 16-16 16-4-4 8-8H0z"/>
-          </svg>
-        </button>
-      </form>
-      <div class="status-box" id="statusBox">
-        <div class="status-title" id="statusTitle"></div>
-        <div class="status-msg" id="statusMsg"></div>
-        <div class="progress" id="progressMsg"></div>
-        <a class="proto-url" id="protoUrl" style="display:none" target="_blank">Open prototype</a>
+  <div>
+    <p class="hero-label">Alpha &middot; Internal tool</p>
+    <h1>Build a <em>live</em> GOV.UK prototype</h1>
+    <p class="lede">Describe your service. Claude designs the journey, builds the code, and deploys it — no terminal required.</p>
+
+    <form id="generateForm" enctype="multipart/form-data">
+      <div class="field">
+        <label for="brief">Describe your service</label>
+        <p class="hint">// what does the user need to do, and why?</p>
+        <textarea id="brief" name="brief" rows="5" placeholder="e.g. A service for parents to apply for free school meals for their child."></textarea>
       </div>
+      <div class="field">
+        <label>Upload a PDF <span style="font-weight:400;color:rgba(255,255,255,0.35)">(optional)</span></label>
+        <p class="hint">// policy docs, service specs, research findings</p>
+        <div class="file-row">
+          <label class="file-btn" for="pdf">Choose file</label>
+          <input type="file" id="pdf" name="pdf" accept=".pdf">
+          <span class="file-name" id="fileName">no file chosen</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="url">Reference URL <span style="font-weight:400;color:rgba(255,255,255,0.35)">(optional)</span></label>
+        <p class="hint">// a live service or document to reference</p>
+        <input type="url" id="url" name="url" placeholder="https://www.gov.uk/example">
+      </div>
+      <button type="submit" class="generate-btn" id="generateBtn">
+        <span id="btnText">Generate prototype</span>
+        <svg class="btn-arrow" id="btnArrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" aria-hidden="true">
+          <path d="M0 20h40l-8-8 4-4 16 16-16 16-4-4 8-8H0z"/>
+        </svg>
+      </button>
+    </form>
+
+    <!-- Progress panel -->
+    <div id="progressPanel">
+      <ul class="progress-steps" id="progressSteps">
+        <li id="step-claude"><span class="step-icon"><span class="step-dot"></span></span>Calling Claude API</li>
+        <li id="step-build"><span class="step-icon"><span class="step-dot"></span></span>Building prototype files</li>
+        <li id="step-github"><span class="step-icon"><span class="step-dot"></span></span>Pushing to GitHub</li>
+        <li id="step-render"><span class="step-icon"><span class="step-dot"></span></span>Creating Render service</li>
+        <li id="step-deploy"><span class="step-icon"><span class="step-dot"></span></span>Waiting for deploy to go live</li>
+      </ul>
     </div>
-    <div class="steps">
-      <h2>How it works</h2>
-      <ol>
-        <li>Describe your service — one line or a full brief.</li>
-        <li>Click Generate.</li>
-        <li>Wait about 3 minutes while Claude builds and deploys it.</li>
-        <li>Click the link to open your live prototype.</li>
-      </ol>
+
+    <!-- Done panel -->
+    <div id="donePanel">
+      <div class="done-tick">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 12l5 5L20 7"/>
+        </svg>
+      </div>
+      <div class="done-heading">Your prototype is live</div>
+      <div class="done-sub" id="doneRef"></div>
+      <a href="#" id="openBtn" class="open-btn" target="_blank" rel="noopener">
+        Open prototype
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Error panel -->
+    <div id="errorPanel">
+      <div class="error-heading">Something went wrong</div>
+      <div class="error-msg" id="errorMsg"></div>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <p class="sidebar-label">How it works</p>
+    <ul class="steps">
+      <li>
+        <span class="step-num">01</span>
+        <div class="step-text"><strong>Describe your service</strong>One sentence is enough. Add a PDF or URL if you have more detail.</div>
+      </li>
+      <li>
+        <span class="step-num">02</span>
+        <div class="step-text"><strong>Click Generate</strong>Claude reads your brief and designs a multi-page GOV.UK journey with validation and branching logic.</div>
+      </li>
+      <li>
+        <span class="step-num">03</span>
+        <div class="step-text"><strong>Wait ~3 minutes</strong>The prototype is built, pushed to GitHub, and deployed to a live URL.</div>
+      </li>
+      <li>
+        <span class="step-num">04</span>
+        <div class="step-text"><strong>Open and test it</strong>Share the link with your team. The prototype is fully interactive.</div>
+      </li>
+    </ul>
+    <div class="cost-note">
+      <strong>~5p</strong> per prototype &middot; powered by Claude Sonnet
     </div>
   </div>
 </main>
-<footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
+
+<footer>GOV.UK Prototype Kit v13 &middot; Claude Sonnet &middot; Render &middot; GitHub</footer>
+
 <script>
   document.getElementById('pdf').addEventListener('change', function() {
-    document.getElementById('fileName').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+    document.getElementById('fileName').textContent = this.files[0] ? this.files[0].name : 'no file chosen';
   });
+
+  function setStep(id, state) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.className = state;
+    const icon = el.querySelector('.step-icon');
+    if (state === 'active') {
+      icon.innerHTML = '<span class="spin"></span>';
+    } else if (state === 'done') {
+      icon.innerHTML = '✓';
+    } else if (state === 'error-step') {
+      icon.innerHTML = '✕';
+    } else {
+      icon.innerHTML = '<span class="step-dot"></span>';
+    }
+  }
+
+  function setProgress(cls) {
+    const panel = document.getElementById('progressPanel');
+    panel.className = 'visible ' + cls;
+  }
 
   document.getElementById('generateForm').addEventListener('submit', async function(e) {
     e.preventDefault();
+
     const btn = document.getElementById('generateBtn');
     const btnText = document.getElementById('btnText');
     const btnArrow = document.getElementById('btnArrow');
-    const statusBox = document.getElementById('statusBox');
-    const statusTitle = document.getElementById('statusTitle');
-    const statusMsg = document.getElementById('statusMsg');
-    const progressMsg = document.getElementById('progressMsg');
-    const protoUrl = document.getElementById('protoUrl');
+    const progressPanel = document.getElementById('progressPanel');
+    const donePanel = document.getElementById('donePanel');
+    const errorPanel = document.getElementById('errorPanel');
 
+    // Reset
+    donePanel.className = '';
+    errorPanel.className = '';
+    progressPanel.className = 'visible p10';
     btn.disabled = true;
     btnArrow.style.display = 'none';
-    btnText.innerHTML = '<span class="spinner"></span> Generating…';
-    statusBox.className = 'status-box visible';
-    statusTitle.textContent = 'Building your prototype…';
-    statusMsg.textContent = 'This takes 2 to 3 minutes. Do not close this page.';
-    progressMsg.textContent = 'Step 1 of 3: Generating prototype with Claude…';
-    protoUrl.style.display = 'none';
+    btnText.innerHTML = '<span class="spin" style="border-color:rgba(0,0,0,0.2);border-top-color:#0b0c0c"></span> Generating…';
+
+    // Reset steps
+    ['step-claude','step-build','step-github','step-render','step-deploy'].forEach(id => setStep(id, ''));
+    setStep('step-claude', 'active');
 
     try {
       const formData = new FormData(this);
-      const response = await fetch('/generate', { method: 'POST', body: formData });
+
+      const response = await fetch('/generate', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'text/event-stream' }
+      });
 
       if (!response.ok) {
-        const err = await response.json();
+        const err = await response.json().catch(() => ({ error: 'Unknown error' }));
         throw new Error(err.error || 'Something went wrong');
       }
 
-      const result = await response.json();
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let finalResult = null;
 
-      statusBox.className = 'status-box visible success';
-      statusTitle.textContent = 'Your prototype is live';
-      statusMsg.textContent = 'It may take another minute to fully wake up on first visit.';
-      progressMsg.textContent = '';
-      protoUrl.href = result.url;
-      protoUrl.style.display = 'inline-block';
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        const stepOrder = ['step-claude','step-build','step-github','step-render','step-deploy'];
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (!data) continue;
+
+          try {
+            const msg = JSON.parse(data);
+
+            if (msg.step) {
+              const idx = stepOrder.indexOf(msg.step);
+              stepOrder.forEach((id, i) => {
+                if (i < idx) setStep(id, 'done');
+                else if (i === idx) setStep(id, 'active');
+              });
+              setProgress(['p10','p30','p50','p70','p85'][idx] || 'p85');
+            }
+
+            if (msg.done) {
+              stepOrder.forEach(id => setStep(id, 'done'));
+              setProgress('p100');
+              finalResult = msg;
+            }
+
+            if (msg.error) throw new Error(msg.error);
+          } catch(parseErr) {
+            if (parseErr.message && !parseErr.message.includes('JSON')) throw parseErr;
+          }
+        }
+
+        if (finalResult) break;
+      }
+
+      if (!finalResult || !finalResult.url) throw new Error('Did not receive prototype URL.');
+
+      // Show done
+      progressPanel.style.display = 'none';
+      document.getElementById('openBtn').href = finalResult.url;
+      document.getElementById('doneRef').textContent = finalResult.url.replace('https://', '');
+      donePanel.className = 'visible';
 
     } catch (err) {
-      statusBox.className = 'status-box visible error';
-      statusTitle.textContent = 'Something went wrong';
-      statusMsg.textContent = err.message || 'Try again. If it keeps failing, simplify your brief.';
-      progressMsg.textContent = '';
+      setProgress('error-state');
+      ['step-claude','step-build','step-github','step-render','step-deploy'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.className === 'active') setStep(id, 'error-step');
+      });
+      document.getElementById('errorMsg').textContent = err.message || 'Try again or simplify your brief.';
+      errorPanel.className = 'visible';
     }
 
     btn.disabled = false;
@@ -304,9 +723,24 @@ app.get('/', (req, res) => {
 </html>`);
 });
 
-// ─── Generate endpoint ────────────────────────────────────────────────────────
+// ─── Generate endpoint (SSE streaming) ───────────────────────────────────────
 
 app.post('/generate', upload.single('pdf'), async (req, res) => {
+  // Set up SSE
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  function send(data) {
+    res.write('data: ' + JSON.stringify(data) + '\n\n');
+  }
+
+  function sendError(msg) {
+    send({ error: msg });
+    res.end();
+  }
+
   try {
     const { brief, url } = req.body;
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -315,14 +749,16 @@ app.post('/generate', upload.single('pdf'), async (req, res) => {
     const renderOwnerId = process.env.RENDER_OWNER_ID;
     const githubUsername = process.env.GITHUB_USERNAME;
 
-    if (!apiKey) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set' });
-    if (!githubToken) return res.status(500).json({ error: 'GITHUB_TOKEN not set' });
-    if (!renderApiKey) return res.status(500).json({ error: 'RENDER_API_KEY not set' });
-    if (!renderOwnerId) return res.status(500).json({ error: 'RENDER_OWNER_ID not set' });
-    if (!githubUsername) return res.status(500).json({ error: 'GITHUB_USERNAME not set' });
-    if (!brief || brief.trim().length < 5) return res.status(400).json({ error: 'Please describe your service' });
+    if (!apiKey) return sendError('ANTHROPIC_API_KEY not set');
+    if (!githubToken) return sendError('GITHUB_TOKEN not set');
+    if (!renderApiKey) return sendError('RENDER_API_KEY not set');
+    if (!renderOwnerId) return sendError('RENDER_OWNER_ID not set');
+    if (!githubUsername) return sendError('GITHUB_USERNAME not set');
+    if (!brief || brief.trim().length < 5) return sendError('Please describe your service');
 
-    // Step 1: Call Claude
+    // Step 1: Claude
+    send({ step: 'step-claude' });
+
     let userMessage = `Brief: ${brief.trim()}`;
     if (req.file) {
       try {
@@ -350,7 +786,7 @@ app.post('/generate', upload.single('pdf'), async (req, res) => {
 
     if (!claudeResponse.ok) {
       const err = await claudeResponse.json();
-      throw new Error(err.error?.message || 'Claude API error');
+      return sendError(err.error?.message || 'Claude API error');
     }
 
     const claudeData = await claudeResponse.json();
@@ -361,15 +797,19 @@ app.post('/generate', upload.single('pdf'), async (req, res) => {
       const clean = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
       spec = JSON.parse(clean);
     } catch (e) {
-      throw new Error('Claude returned invalid JSON. Try simplifying your brief.');
+      return sendError('Claude returned invalid JSON. Try simplifying your brief.');
     }
 
-    if (!spec.serviceName || !spec.questions || spec.questions.length < 2) {
-      throw new Error('Prototype spec incomplete. Try again.');
+    if (!spec.serviceName || !spec.questions || spec.questions.length < 1) {
+      return sendError('Prototype spec incomplete. Try again.');
     }
 
-    // Step 2: Build files and push to GitHub
+    // Step 2: Build files
+    send({ step: 'step-build' });
     const files = buildPrototypeFiles(spec);
+
+    // Step 3: GitHub
+    send({ step: 'step-github' });
     const timestamp = Date.now();
     const repoName = `prototype-${timestamp}`;
 
@@ -378,23 +818,26 @@ app.post('/generate', upload.single('pdf'), async (req, res) => {
 
     const repoUrl = `https://github.com/${githubUsername}/${repoName}`;
 
-    // Step 3: Create Render service
+    // Step 4: Render
+    send({ step: 'step-render' });
     const serviceName = `prototype-${timestamp}`;
     const renderData = await createRenderService(repoUrl, serviceName, renderApiKey, renderOwnerId);
 
     const serviceId = renderData.service?.id;
-    if (!serviceId) throw new Error('Render did not return a service ID');
+    if (!serviceId) return sendError('Render did not return a service ID');
 
-    // Step 4: Wait for deploy and get URL
-    // Render free tier takes 2-4 minutes to deploy
-    // Return the expected URL immediately — it will be live shortly
+    // Step 5: Poll until live
+    send({ step: 'step-deploy' });
     const protoUrl = `https://${serviceName}.onrender.com`;
+    await pollUntilLive(protoUrl);
 
-    res.json({ url: protoUrl, repoUrl });
+    // Done
+    send({ done: true, url: protoUrl, repoUrl });
+    res.end();
 
   } catch (err) {
     console.error(err);
-    if (!res.headersSent) res.status(500).json({ error: err.message });
+    sendError(err.message || 'Unexpected error');
   }
 });
 
