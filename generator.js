@@ -369,7 +369,8 @@ function generateAppConfig(spec) {
   return JSON.stringify({
     serviceName: spec.serviceName,
     serviceUrl: '/',
-    useServiceNavigation: false
+    useServiceNavigation: false,
+    useAuth: false
   }, null, 2);
 }
 
