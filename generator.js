@@ -9,7 +9,7 @@ function jsStr(str) {
     .trim();
 }
 
-// Escape for use inside HTML / Nunjucks text content
+// Escape for use inside HTML text content
 function htmlStr(str) {
   return String(str || '')
     .replace(/&/g, '&amp;')
@@ -28,7 +28,7 @@ function njkAttr(str) {
     .trim();
 }
 
-// Safe URL slug
+// Safe URL slug — only lowercase letters, numbers, hyphens
 function slug(str) {
   return String(str || '')
     .toLowerCase()
@@ -46,7 +46,7 @@ function pkgName(str) {
     .slice(0, 50) || 'prototype';
 }
 
-// Safe reference prefix
+// Safe reference prefix — uppercase letters only
 function refPrefix(str) {
   return String(str || '')
     .toUpperCase()
@@ -59,27 +59,40 @@ function refPrefix(str) {
 function validateSpec(spec) {
   if (!spec || typeof spec !== 'object') throw new Error('Spec is not an object');
   if (!spec.serviceName || typeof spec.serviceName !== 'string') throw new Error('Missing serviceName');
-  if (!spec.referencePrefix || typeof spec.referencePrefix !== 'string') throw new Error('Missing referencePrefix');
+  if (!spec.referencePrefix || typeof spec.referencePrefix !== 'string') spec.referencePrefix = 'REF';
   if (!spec.startPage || typeof spec.startPage !== 'object') throw new Error('Missing startPage');
   if (!spec.startPage.heading) throw new Error('Missing startPage.heading');
-  if (!spec.startPage.description) throw new Error('Missing startPage.description');
-  if (!Array.isArray(spec.startPage.whatYouNeed)) spec.startPage.whatYouNeed = ['your details'];
+  if (!spec.startPage.description) spec.startPage.description = spec.startPage.heading;
+  if (!Array.isArray(spec.startPage.whatYouNeed) || spec.startPage.whatYouNeed.length === 0) {
+    spec.startPage.whatYouNeed = ['your details'];
+  }
   if (!spec.startPage.timeToComplete) spec.startPage.timeToComplete = '10 minutes';
   if (!Array.isArray(spec.questions) || spec.questions.length < 1) throw new Error('Missing questions array');
 
-  spec.questions = spec.questions.map((q, i) => {
+  spec.questions = spec.questions.map(function(q, i) {
     if (!q.id || typeof q.id !== 'string') q.id = 'question-' + (i + 1);
     q.id = slug(q.id);
     if (!q.type || !['radio', 'text', 'textarea'].includes(q.type)) q.type = 'text';
     if (!q.question || typeof q.question !== 'string') q.question = 'Question ' + (i + 1);
     if (!q.validation || typeof q.validation !== 'string') q.validation = 'Enter an answer';
-    if (q.type === 'radio' && (!Array.isArray(q.options) || q.options.length < 2)) {
-      q.options = ['Yes', 'No'];
+    if (q.type === 'radio') {
+      if (!Array.isArray(q.options) || q.options.length < 2) q.options = ['Yes', 'No'];
+      // Ensure options are strings
+      q.options = q.options.map(function(o) { return String(o || '').trim() || 'Option'; });
+    } else {
+      q.options = null;
     }
-    if (q.type !== 'radio') q.options = null;
     if (!q.hint || typeof q.hint !== 'string') q.hint = null;
-    if (!q.ineligibleAnswer || typeof q.ineligibleAnswer !== 'string') q.ineligibleAnswer = null;
-    if (!q.ineligibleReason || typeof q.ineligibleReason !== 'string') q.ineligibleReason = null;
+    // Only allow ineligible if radio type with a matching option
+    if (q.type === 'radio' && q.ineligibleAnswer && typeof q.ineligibleAnswer === 'string') {
+      q.ineligibleAnswer = q.ineligibleAnswer.trim();
+      if (!q.ineligibleReason || typeof q.ineligibleReason !== 'string') {
+        q.ineligibleReason = 'Based on your answer, you cannot use this service.';
+      }
+    } else {
+      q.ineligibleAnswer = null;
+      q.ineligibleReason = null;
+    }
     return q;
   });
 
@@ -95,107 +108,129 @@ function validateSpec(spec) {
 
 function generateRoutesJs(spec) {
   const prefix = refPrefix(spec.referencePrefix);
+  const lines = [];
 
-  let out = "const govukPrototypeKit = require('govuk-prototype-kit')\n";
-  out += "const router = govukPrototypeKit.requests.setupRouter()\n\n";
-  out += "function generateReference(prefix) {\n";
-  out += "  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'\n";
-  out += "  let ref = prefix + '-'\n";
-  out += "  for (let i = 0; i < 8; i++) {\n";
-  out += "    ref += chars[Math.floor(Math.random() * chars.length)]\n";
-  out += "  }\n";
-  out += "  return ref\n";
-  out += "}\n\n";
-  out += "router.get('/', function (req, res) {\n";
-  out += "  res.render('start')\n";
-  out += "})\n\n";
+  lines.push("const govukPrototypeKit = require('govuk-prototype-kit')");
+  lines.push("const router = govukPrototypeKit.requests.setupRouter()");
+  lines.push('');
+  lines.push('function generateReference (prefix) {');
+  lines.push("  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'");
+  lines.push("  let ref = prefix + '-'");
+  lines.push('  for (let i = 0; i < 8; i++) {');
+  lines.push('    ref += chars[Math.floor(Math.random() * chars.length)]');
+  lines.push('  }');
+  lines.push('  return ref');
+  lines.push('}');
+  lines.push('');
+  lines.push("router.get('/', function (req, res) {");
+  lines.push("  res.redirect('/start')");
+  lines.push('})');
+  lines.push('');
 
   spec.questions.forEach(function(q, i) {
     const nextPage = i < spec.questions.length - 1 ? spec.questions[i + 1].id : 'check-answers';
     const validationMsg = jsStr(q.validation);
+    // ineligible answer value is the slug of the option text
     const ineligibleValue = q.ineligibleAnswer ? slug(q.ineligibleAnswer) : null;
 
-    out += "router.get('/" + q.id + "', function (req, res) {\n";
-    out += "  res.render('" + q.id + "', { errors: null, data: req.session.data })\n";
-    out += "})\n\n";
+    lines.push("router.get('/" + q.id + "', function (req, res) {");
+    lines.push("  res.render('" + q.id + "')");
+    lines.push('})');
+    lines.push('');
 
-    out += "router.post('/" + q.id + "', function (req, res) {\n";
-    out += "  const answer = req.session.data['" + q.id + "']\n";
-    out += "  if (!answer || !answer.toString().trim()) {\n";
-    out += "    return res.render('" + q.id + "', {\n";
-    out += "      errors: { '" + q.id + "': '" + validationMsg + "' },\n";
-    out += "      data: req.session.data\n";
-    out += "    })\n";
-    out += "  }\n";
+    lines.push("router.post('/" + q.id + "', function (req, res) {");
+    lines.push("  const answer = req.session.data['" + q.id + "']");
+    lines.push('  if (!answer || !answer.toString().trim()) {');
+    lines.push("    res.locals.errors = { '" + q.id + "': '" + validationMsg + "' }");
+    lines.push("    return res.render('" + q.id + "')");
+    lines.push('  }');
     if (ineligibleValue) {
-      out += "  if (answer === '" + ineligibleValue + "') {\n";
-      out += "    return res.redirect('/ineligible-" + q.id + "')\n";
-      out += "  }\n";
+      lines.push("  if (answer === '" + ineligibleValue + "') {");
+      lines.push("    return res.redirect('/ineligible-" + q.id + "')");
+      lines.push('  }');
     }
-    out += "  res.redirect('/" + nextPage + "')\n";
-    out += "})\n\n";
+    lines.push("  res.redirect('/" + nextPage + "')");
+    lines.push('})');
+    lines.push('');
 
     if (ineligibleValue) {
-      out += "router.get('/ineligible-" + q.id + "', function (req, res) {\n";
-      out += "  res.render('ineligible-" + q.id + "')\n";
-      out += "})\n\n";
+      lines.push("router.get('/ineligible-" + q.id + "', function (req, res) {");
+      lines.push("  res.render('ineligible-" + q.id + "')");
+      lines.push('})');
+      lines.push('');
     }
   });
 
-  out += "router.get('/check-answers', function (req, res) {\n";
-  out += "  res.render('check-answers', { data: req.session.data })\n";
-  out += "})\n\n";
-  out += "router.post('/check-answers', function (req, res) {\n";
-  out += "  if (!req.session.data['reference']) {\n";
-  out += "    req.session.data['reference'] = generateReference('" + prefix + "')\n";
-  out += "  }\n";
-  out += "  res.redirect('/confirmation')\n";
-  out += "})\n\n";
-  out += "router.get('/confirmation', function (req, res) {\n";
-  out += "  res.render('confirmation', { data: req.session.data })\n";
-  out += "})\n\n";
-  out += "module.exports = router\n";
+  lines.push("router.get('/check-answers', function (req, res) {");
+  lines.push("  res.render('check-answers')");
+  lines.push('})');
+  lines.push('');
 
-  return out;
+  lines.push("router.post('/check-answers', function (req, res) {");
+  lines.push("  if (!req.session.data['reference']) {");
+  lines.push("    req.session.data['reference'] = generateReference('" + prefix + "')");
+  lines.push('  }');
+  lines.push("  res.redirect('/confirmation')");
+  lines.push('})');
+  lines.push('');
+
+  lines.push("router.get('/confirmation', function (req, res) {");
+  lines.push("  res.render('confirmation')");
+  lines.push('})');
+  lines.push('');
+  lines.push('module.exports = router');
+  lines.push('');
+
+  return lines.join('\n');
 }
 
-// ─── Templates ────────────────────────────────────────────────────────────────
+// ─── Layout ───────────────────────────────────────────────────────────────────
 
+// The kit auto-registers all govuk macros globally via govuk-prototype-kit.config.json
+// so no explicit imports needed - just extend the branded layout
 function generateMainLayout() {
   return '{% extends "govuk-prototype-kit/layouts/govuk-branded.njk" %}\n';
 }
+
+// ─── Start page ───────────────────────────────────────────────────────────────
 
 function generateStartPage(spec) {
   const items = spec.startPage.whatYouNeed
     .map(function(item) { return '      <li>' + htmlStr(item) + '</li>'; })
     .join('\n');
 
-  return '{% extends "layouts/main.html" %}\n\n' +
-    '{% set pageName = "' + njkAttr(spec.startPage.heading) + '" %}\n\n' +
-    '{% block content %}\n' +
-    '<div class="govuk-grid-row">\n' +
-    '  <div class="govuk-grid-column-two-thirds">\n' +
-    '    <h1 class="govuk-heading-xl">' + htmlStr(spec.startPage.heading) + '</h1>\n' +
-    '    <p class="govuk-body">' + htmlStr(spec.startPage.description) + '</p>\n' +
-    '    <p class="govuk-body">You will need:</p>\n' +
-    '    <ul class="govuk-list govuk-list--bullet">\n' +
-    items + '\n' +
-    '    </ul>\n' +
-    '    <p class="govuk-body">It takes around <strong>' + htmlStr(spec.startPage.timeToComplete) + '</strong> to complete.</p>\n' +
-    '    {{ govukButton({\n' +
-    '      text: "Start now",\n' +
-    '      href: "/' + spec.questions[0].id + '",\n' +
-    '      isStartButton: true\n' +
-    '    }) }}\n' +
-    '  </div>\n' +
-    '</div>\n' +
-    '{% endblock %}\n';
+  const lines = [];
+  lines.push('{% extends "layouts/main.html" %}');
+  lines.push('');
+  lines.push('{% set pageName = "' + njkAttr(spec.startPage.heading) + '" %}');
+  lines.push('');
+  lines.push('{% block content %}');
+  lines.push('<div class="govuk-grid-row">');
+  lines.push('  <div class="govuk-grid-column-two-thirds">');
+  lines.push('    <h1 class="govuk-heading-xl">' + htmlStr(spec.startPage.heading) + '</h1>');
+  lines.push('    <p class="govuk-body">' + htmlStr(spec.startPage.description) + '</p>');
+  lines.push('    <p class="govuk-body">You will need:</p>');
+  lines.push('    <ul class="govuk-list govuk-list--bullet">');
+  lines.push(items);
+  lines.push('    </ul>');
+  lines.push('    <p class="govuk-body">It takes around <strong>' + htmlStr(spec.startPage.timeToComplete) + '</strong> to complete.</p>');
+  lines.push('    {{ govukButton({');
+  lines.push('      text: "Start now",');
+  lines.push('      href: "/' + spec.questions[0].id + '",');
+  lines.push('      isStartButton: true');
+  lines.push('    }) }}');
+  lines.push('  </div>');
+  lines.push('</div>');
+  lines.push('{% endblock %}');
+  lines.push('');
+  return lines.join('\n');
 }
+
+// ─── Question pages ───────────────────────────────────────────────────────────
 
 function generateQuestionPage(q) {
   const questionText = njkAttr(q.question);
   const hintText = q.hint ? njkAttr(q.hint) : null;
-
   let component = '';
 
   if (q.type === 'radio') {
@@ -205,148 +240,198 @@ function generateQuestionPage(q) {
       })
       .join(',\n');
 
-    component = '    {{ govukRadios({\n' +
-      '      name: "' + q.id + '",\n' +
-      '      fieldset: {\n' +
-      '        legend: {\n' +
-      '          text: "' + questionText + '",\n' +
-      '          isPageHeading: true,\n' +
-      '          classes: "govuk-fieldset__legend--l"\n' +
-      '        }\n' +
-      '      },\n' +
-      (hintText ? '      hint: { text: "' + hintText + '" },\n' : '') +
-      "      errorMessage: errors['" + q.id + "'] if errors else null,\n" +
-      "      value: data['" + q.id + "'],\n" +
-      '      items: [\n' +
-      items + '\n' +
-      '      ]\n' +
-      '    }) }}';
+    component = [
+      '    {{ govukRadios({',
+      '      name: "' + q.id + '",',
+      '      fieldset: {',
+      '        legend: {',
+      '          text: "' + questionText + '",',
+      '          isPageHeading: true,',
+      '          classes: "govuk-fieldset__legend--l"',
+      '        }',
+      '      },',
+      (hintText ? '      hint: { text: "' + hintText + '" },' : null),
+      '      errorMessage: errors["' + q.id + '"] if errors else null,',
+      '      value: data["' + q.id + '"],',
+      '      items: [',
+      items,
+      '      ]',
+      '    }) }}'
+    ].filter(function(l) { return l !== null; }).join('\n');
+
   } else if (q.type === 'textarea') {
-    component = '    {{ govukTextarea({\n' +
-      '      id: "' + q.id + '",\n' +
-      '      name: "' + q.id + '",\n' +
-      '      label: {\n' +
-      '        text: "' + questionText + '",\n' +
-      '        isPageHeading: true,\n' +
-      '        classes: "govuk-label--l"\n' +
-      '      },\n' +
-      (hintText ? '      hint: { text: "' + hintText + '" },\n' : '') +
-      "      errorMessage: errors['" + q.id + "'] if errors else null,\n" +
-      "      value: data['" + q.id + "'],\n" +
-      '      rows: 5\n' +
-      '    }) }}';
+    component = [
+      '    {{ govukTextarea({',
+      '      id: "' + q.id + '",',
+      '      name: "' + q.id + '",',
+      '      label: {',
+      '        text: "' + questionText + '",',
+      '        isPageHeading: true,',
+      '        classes: "govuk-label--l"',
+      '      },',
+      (hintText ? '      hint: { text: "' + hintText + '" },' : null),
+      '      errorMessage: errors["' + q.id + '"] if errors else null,',
+      '      value: data["' + q.id + '"],',
+      '      rows: 5',
+      '    }) }}'
+    ].filter(function(l) { return l !== null; }).join('\n');
+
   } else {
-    component = '    {{ govukInput({\n' +
-      '      id: "' + q.id + '",\n' +
-      '      name: "' + q.id + '",\n' +
-      '      label: {\n' +
-      '        text: "' + questionText + '",\n' +
-      '        isPageHeading: true,\n' +
-      '        classes: "govuk-label--l"\n' +
-      '      },\n' +
-      (hintText ? '      hint: { text: "' + hintText + '" },\n' : '') +
-      "      errorMessage: errors['" + q.id + "'] if errors else null,\n" +
-      "      value: data['" + q.id + "']\n" +
-      '    }) }}';
+    component = [
+      '    {{ govukInput({',
+      '      id: "' + q.id + '",',
+      '      name: "' + q.id + '",',
+      '      label: {',
+      '        text: "' + questionText + '",',
+      '        isPageHeading: true,',
+      '        classes: "govuk-label--l"',
+      '      },',
+      (hintText ? '      hint: { text: "' + hintText + '" },' : null),
+      '      errorMessage: errors["' + q.id + '"] if errors else null,',
+      '      value: data["' + q.id + '"]',
+      '    }) }}'
+    ].filter(function(l) { return l !== null; }).join('\n');
   }
 
-  return '{% extends "layouts/main.html" %}\n\n' +
-    '{% set pageName = "' + questionText + '" %}\n\n' +
-    '{% block content %}\n' +
-    '<div class="govuk-grid-row">\n' +
-    '  <div class="govuk-grid-column-two-thirds">\n\n' +
-    '    {{ govukBackLink({ text: "Back", href: "javascript:history.back()" }) }}\n\n' +
-    "    {% if errors and errors['" + q.id + "'] %}\n" +
-    '      {{ govukErrorSummary({\n' +
-    '        titleText: "There is a problem",\n' +
-    "        errorList: [{ text: errors['" + q.id + "'], href: \"#" + q.id + "\" }]\n" +
-    '      }) }}\n' +
-    '    {% endif %}\n\n' +
-    '    <form method="post" novalidate>\n' +
-    '      <input type="hidden" name="_csrf" value="{{ csrf }}">\n' +
-    component + '\n' +
-    '      {{ govukButton({ text: "Continue" }) }}\n' +
-    '    </form>\n\n' +
-    '  </div>\n' +
-    '</div>\n' +
-    '{% endblock %}\n';
+  const lines = [];
+  lines.push('{% extends "layouts/main.html" %}');
+  lines.push('');
+  lines.push('{% set pageName = "' + questionText + '" %}');
+  lines.push('');
+  lines.push('{% block content %}');
+  lines.push('<div class="govuk-grid-row">');
+  lines.push('  <div class="govuk-grid-column-two-thirds">');
+  lines.push('');
+  lines.push('    {{ govukBackLink({ text: "Back", href: "javascript:history.back()" }) }}');
+  lines.push('');
+  lines.push('    {% if errors and errors["' + q.id + '"] %}');
+  lines.push('    {{ govukErrorSummary({');
+  lines.push('      titleText: "There is a problem",');
+  lines.push('      errorList: [{ text: errors["' + q.id + '"], href: "#' + q.id + '" }]');
+  lines.push('    }) }}');
+  lines.push('    {% endif %}');
+  lines.push('');
+  lines.push('    <form method="post" novalidate>');
+  lines.push(component);
+  lines.push('      {{ govukButton({ text: "Continue" }) }}');
+  lines.push('    </form>');
+  lines.push('');
+  lines.push('  </div>');
+  lines.push('</div>');
+  lines.push('{% endblock %}');
+  lines.push('');
+  return lines.join('\n');
 }
+
+// ─── Ineligible page ──────────────────────────────────────────────────────────
 
 function generateIneligiblePage(q) {
   const reason = htmlStr(q.ineligibleReason || 'Based on your answer, you cannot use this service.');
-
-  return '{% extends "layouts/main.html" %}\n\n' +
-    '{% set pageName = "You cannot use this service" %}\n\n' +
-    '{% block content %}\n' +
-    '<div class="govuk-grid-row">\n' +
-    '  <div class="govuk-grid-column-two-thirds">\n\n' +
-    '    {{ govukBackLink({ text: "Back", href: "javascript:history.back()" }) }}\n\n' +
-    '    <h1 class="govuk-heading-xl">You cannot use this service</h1>\n' +
-    '    <p class="govuk-body">' + reason + '</p>\n' +
-    '    <h2 class="govuk-heading-m">What you can do</h2>\n' +
-    '    <p class="govuk-body">If you think this is wrong, <a href="/" class="govuk-link">start again</a> or contact us for help.</p>\n\n' +
-    '  </div>\n' +
-    '</div>\n' +
-    '{% endblock %}\n';
+  const lines = [];
+  lines.push('{% extends "layouts/main.html" %}');
+  lines.push('');
+  lines.push('{% set pageName = "You cannot use this service" %}');
+  lines.push('');
+  lines.push('{% block content %}');
+  lines.push('<div class="govuk-grid-row">');
+  lines.push('  <div class="govuk-grid-column-two-thirds">');
+  lines.push('');
+  lines.push('    {{ govukBackLink({ text: "Back", href: "javascript:history.back()" }) }}');
+  lines.push('');
+  lines.push('    <h1 class="govuk-heading-xl">You cannot use this service</h1>');
+  lines.push('    <p class="govuk-body">' + reason + '</p>');
+  lines.push('    <h2 class="govuk-heading-m">What you can do</h2>');
+  lines.push('    <p class="govuk-body">If you think this is wrong, <a href="/start" class="govuk-link">start again</a> or contact us for help.</p>');
+  lines.push('');
+  lines.push('  </div>');
+  lines.push('</div>');
+  lines.push('{% endblock %}');
+  lines.push('');
+  return lines.join('\n');
 }
+
+// ─── Check answers page ───────────────────────────────────────────────────────
 
 function generateCheckAnswersPage(spec) {
   const rows = spec.questions.map(function(q) {
-    return '      {\n' +
-      '        key: { text: "' + njkAttr(q.question) + '" },\n' +
-      "        value: { text: data['" + q.id + "'] if data['" + q.id + "'] else \"Not provided\" },\n" +
-      '        actions: {\n' +
-      '          items: [{\n' +
-      '            href: "/' + q.id + '",\n' +
-      '            text: "Change",\n' +
-      '            visuallyHiddenText: "' + njkAttr(q.question.toLowerCase()) + '"\n' +
-      '          }]\n' +
-      '        }\n' +
-      '      }';
+    return [
+      '      {',
+      '        key: { text: "' + njkAttr(q.question) + '" },',
+      '        value: { text: data["' + q.id + '"] if data["' + q.id + '"] else "Not answered" },',
+      '        actions: {',
+      '          items: [{',
+      '            href: "/' + q.id + '",',
+      '            text: "Change",',
+      '            visuallyHiddenText: "' + njkAttr(q.question.toLowerCase()) + '"',
+      '          }]',
+      '        }',
+      '      }'
+    ].join('\n');
   }).join(',\n');
 
-  return '{% extends "layouts/main.html" %}\n\n' +
-    '{% set pageName = "' + njkAttr(spec.checkAnswersHeading) + '" %}\n\n' +
-    '{% block content %}\n' +
-    '<div class="govuk-grid-row">\n' +
-    '  <div class="govuk-grid-column-two-thirds">\n\n' +
-    '    {{ govukBackLink({ text: "Back", href: "javascript:history.back()" }) }}\n\n' +
-    '    <h1 class="govuk-heading-xl">' + htmlStr(spec.checkAnswersHeading) + '</h1>\n\n' +
-    '    {{ govukSummaryList({\n' +
-    '      rows: [\n' +
-    rows + '\n' +
-    '      ]\n' +
-    '    }) }}\n\n' +
-    '    <form method="post" novalidate>\n' +
-    '      <input type="hidden" name="_csrf" value="{{ csrf }}">\n' +
-    '      {{ govukButton({ text: "Confirm and send" }) }}\n' +
-    '    </form>\n\n' +
-    '  </div>\n' +
-    '</div>\n' +
-    '{% endblock %}\n';
+  const lines = [];
+  lines.push('{% extends "layouts/main.html" %}');
+  lines.push('');
+  lines.push('{% set pageName = "' + njkAttr(spec.checkAnswersHeading) + '" %}');
+  lines.push('');
+  lines.push('{% block content %}');
+  lines.push('<div class="govuk-grid-row">');
+  lines.push('  <div class="govuk-grid-column-two-thirds">');
+  lines.push('');
+  lines.push('    {{ govukBackLink({ text: "Back", href: "javascript:history.back()" }) }}');
+  lines.push('');
+  lines.push('    <h1 class="govuk-heading-xl">' + htmlStr(spec.checkAnswersHeading) + '</h1>');
+  lines.push('');
+  lines.push('    {{ govukSummaryList({');
+  lines.push('      rows: [');
+  lines.push(rows);
+  lines.push('      ]');
+  lines.push('    }) }}');
+  lines.push('');
+  lines.push('    <form method="post" novalidate>');
+  lines.push('      {{ govukButton({ text: "Confirm and send" }) }}');
+  lines.push('    </form>');
+  lines.push('');
+  lines.push('  </div>');
+  lines.push('</div>');
+  lines.push('{% endblock %}');
+  lines.push('');
+  return lines.join('\n');
 }
 
+// ─── Confirmation page ────────────────────────────────────────────────────────
+
 function generateConfirmationPage(spec) {
-  return '{% extends "layouts/main.html" %}\n\n' +
-    '{% set pageName = "' + njkAttr(spec.confirmationHeading) + '" %}\n\n' +
-    '{% block content %}\n' +
-    '<div class="govuk-grid-row">\n' +
-    '  <div class="govuk-grid-column-two-thirds">\n\n' +
-    '    <div class="govuk-panel govuk-panel--confirmation">\n' +
-    '      <h1 class="govuk-panel__title">' + htmlStr(spec.confirmationHeading) + '</h1>\n' +
-    '      <div class="govuk-panel__body">\n' +
-    '        Your reference number<br>\n' +
-    "        <strong>{{ data['reference'] }}</strong>\n" +
-    '      </div>\n' +
-    '    </div>\n\n' +
-    '    <h2 class="govuk-heading-m">What happens next</h2>\n' +
-    '    <p class="govuk-body">' + htmlStr(spec.confirmationBody) + '</p>\n' +
-    '    <p class="govuk-body">' + htmlStr(spec.confirmationTimeframe) + '</p>\n' +
-    '    <p class="govuk-body"><a href="/" class="govuk-link">Start a new application</a></p>\n\n' +
-    '  </div>\n' +
-    '</div>\n' +
-    '{% endblock %}\n';
+  const lines = [];
+  lines.push('{% extends "layouts/main.html" %}');
+  lines.push('');
+  lines.push('{% set pageName = "' + njkAttr(spec.confirmationHeading) + '" %}');
+  lines.push('');
+  lines.push('{% block content %}');
+  lines.push('<div class="govuk-grid-row">');
+  lines.push('  <div class="govuk-grid-column-two-thirds">');
+  lines.push('');
+  lines.push('    <div class="govuk-panel govuk-panel--confirmation">');
+  lines.push('      <h1 class="govuk-panel__title">' + htmlStr(spec.confirmationHeading) + '</h1>');
+  lines.push('      <div class="govuk-panel__body">');
+  lines.push('        Your reference number<br>');
+  lines.push('        <strong>{{ data["reference"] }}</strong>');
+  lines.push('      </div>');
+  lines.push('    </div>');
+  lines.push('');
+  lines.push('    <h2 class="govuk-heading-m">What happens next</h2>');
+  lines.push('    <p class="govuk-body">' + htmlStr(spec.confirmationBody) + '</p>');
+  lines.push('    <p class="govuk-body">' + htmlStr(spec.confirmationTimeframe) + '</p>');
+  lines.push('    <p class="govuk-body"><a href="/start" class="govuk-link">Start a new application</a></p>');
+  lines.push('');
+  lines.push('  </div>');
+  lines.push('</div>');
+  lines.push('{% endblock %}');
+  lines.push('');
+  return lines.join('\n');
 }
+
+// ─── package.json ─────────────────────────────────────────────────────────────
 
 function generatePackageJson(spec) {
   return JSON.stringify({
@@ -355,8 +440,7 @@ function generatePackageJson(spec) {
     description: spec.serviceName,
     main: 'node_modules/govuk-prototype-kit/listen-on-port.js',
     scripts: {
-      start: 'node node_modules/govuk-prototype-kit/listen-on-port.js',
-      dev: 'node node_modules/govuk-prototype-kit/listen-on-port.js'
+      start: 'node node_modules/govuk-prototype-kit/listen-on-port.js'
     },
     engines: { node: '22.x' },
     dependencies: {
@@ -365,11 +449,12 @@ function generatePackageJson(spec) {
   }, null, 2);
 }
 
+// ─── app/config.json ──────────────────────────────────────────────────────────
+
 function generateAppConfig(spec) {
   return JSON.stringify({
     serviceName: spec.serviceName,
-    serviceUrl: '/',
-    useServiceNavigation: false,
+    serviceUrl: '/start',
     useAuth: false
   }, null, 2);
 }
