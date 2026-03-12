@@ -1,3 +1,8 @@
+function safe(str) {
+  // Escape single quotes and backslashes for use inside single-quoted JS strings
+  return String(str || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
 function generateRoutesJs(spec) {
   const { questions, referencePrefix } = spec;
 
@@ -22,14 +27,15 @@ router.get('/', function (req, res) {
 
   questions.forEach((q, index) => {
     const nextPage = index < questions.length - 1 ? questions[index + 1].id : 'check-answers';
-    const ineligibleBlock = q.ineligibleAnswer
+    const ineligibleAnswer = q.ineligibleAnswer ? safe(q.ineligibleAnswer) : null;
+    const ineligibleBlock = ineligibleAnswer
       ? `
-  if (answer === ${JSON.stringify(q.ineligibleAnswer)}) {
+  if (answer === '${ineligibleAnswer}') {
     return res.redirect('/ineligible-${q.id}')
   }`
       : '';
 
-    routes += `// ${q.question}
+    routes += `// ${safe(q.question)}
 router.get('/${q.id}', function (req, res) {
   res.render('${q.id}', { errors: null, data: req.session.data })
 })
@@ -38,7 +44,7 @@ router.post('/${q.id}', function (req, res) {
   const answer = req.session.data['${q.id}']
   if (!answer || answer.trim() === '') {
     return res.render('${q.id}', {
-      errors: { '${q.id}': '${q.validation}' },
+      errors: { '${q.id}': '${safe(q.validation)}' },
       data: req.session.data
     })
   }
@@ -65,7 +71,7 @@ router.get('/check-answers', function (req, res) {
 
 router.post('/check-answers', function (req, res) {
   if (!req.session.data['reference']) {
-    req.session.data['reference'] = generateReference('${referencePrefix}')
+    req.session.data['reference'] = generateReference('${safe(referencePrefix)}')
   }
   res.redirect('/confirmation')
 })
@@ -328,7 +334,7 @@ function generateConfirmationPage(spec) {
 
 function generatePackageJson(spec) {
   return JSON.stringify({
-    name: spec.serviceName.toLowerCase().replace(/\s+/g, '-'),
+    name: spec.serviceName.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').slice(0, 50),
     version: '1.0.0',
     description: spec.serviceName,
     main: 'node_modules/govuk-prototype-kit/listen-on-port.js',
