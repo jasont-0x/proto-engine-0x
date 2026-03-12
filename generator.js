@@ -491,6 +491,7 @@ function buildPrototypeFiles(rawSpec) {
 
   files['app/views/check-answers.html'] = generateCheckAnswersPage(spec);
   files['app/views/confirmation.html'] = generateConfirmationPage(spec);
+  files['app/assets/sass/application.scss'] = '// GOV.UK Prototype Kit styles\n';
 
   return files;
 }
