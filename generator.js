@@ -189,7 +189,18 @@ function generateRoutesJs(spec) {
 // The kit auto-registers all govuk macros globally via govuk-prototype-kit.config.json
 // so no explicit imports needed - just extend the branded layout
 function generateMainLayout() {
-  return '{% extends "govuk-prototype-kit/layouts/govuk-branded.njk" %}\n';
+  return [
+    '{% extends "govuk-prototype-kit/layouts/govuk-branded.njk" %}',
+    '',
+    '{% from "govuk/components/back-link/macro.njk" import govukBackLink %}',
+    '{% from "govuk/components/button/macro.njk" import govukButton %}',
+    '{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}',
+    '{% from "govuk/components/input/macro.njk" import govukInput %}',
+    '{% from "govuk/components/radios/macro.njk" import govukRadios %}',
+    '{% from "govuk/components/textarea/macro.njk" import govukTextarea %}',
+    '{% from "govuk/components/summary-list/macro.njk" import govukSummaryList %}',
+    ''
+  ].join('\n');
 }
 
 // ─── Start page ───────────────────────────────────────────────────────────────
