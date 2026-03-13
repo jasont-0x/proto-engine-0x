@@ -85,21 +85,34 @@ function validateSpec(spec) {
     if (!q.validation || typeof q.validation !== 'string') q.validation = 'Enter an answer';
     q.validation = ensurePeriod(q.validation);
     if (q.type === 'radio') {
-      if (!Array.isArray(q.options) || q.options.length < 2) q.options = ['Yes', 'No'];
-      q.options = q.options.map(function(o) { return String(o || '').trim() || 'Option'; });
+      if (!Array.isArray(q.options) || q.options.length < 2) {
+        q.options = [
+          { text: 'Yes', value: 'yes', next: i < spec.questions.length - 1 ? spec.questions[i + 1].id : 'check-answers' },
+          { text: 'No', value: 'no', next: i < spec.questions.length - 1 ? spec.questions[i + 1].id : 'check-answers' }
+        ];
+      }
+      q.options = q.options.map(function(o) {
+        if (typeof o === 'string') {
+          return { text: o.trim() || 'Option', value: slug(o), next: i < spec.questions.length - 1 ? spec.questions[i + 1].id : 'check-answers' };
+        }
+        return {
+          text: String(o.text || '').trim() || 'Option',
+          value: String(o.value || '').trim() || slug(o.text || 'option'),
+          next: String(o.next || '').trim() || (i < spec.questions.length - 1 ? spec.questions[i + 1].id : 'check-answers')
+        };
+      });
     } else {
       q.options = null;
     }
     if (!q.hint || typeof q.hint !== 'string') q.hint = null;
     if (q.hint) q.hint = ensurePeriod(q.hint);
-    if (q.type === 'radio' && q.ineligibleAnswer && typeof q.ineligibleAnswer === 'string') {
-      q.ineligibleAnswer = q.ineligibleAnswer.trim();
+    var hasIneligibleOption = q.type === 'radio' && Array.isArray(q.options) && q.options.some(function(o) { return o.next === 'ineligible'; });
+    if (hasIneligibleOption) {
       if (!q.ineligibleReason || typeof q.ineligibleReason !== 'string') {
         q.ineligibleReason = 'Based on your answer, you cannot use this service.';
       }
       q.ineligibleReason = ensurePeriod(q.ineligibleReason);
     } else {
-      q.ineligibleAnswer = null;
       q.ineligibleReason = null;
     }
     return q;
@@ -141,8 +154,11 @@ function generateRoutesJs(spec) {
   spec.questions.forEach(function(q, i) {
     const nextPage = i < spec.questions.length - 1 ? spec.questions[i + 1].id : 'check-answers';
     const validationMsg = jsStr(q.validation);
-    // ineligible answer value is the slug of the option text
-    const ineligibleValue = q.ineligibleAnswer ? slug(q.ineligibleAnswer) : null;
+    var hasIneligible = false;
+
+    if (q.type === 'radio' && Array.isArray(q.options)) {
+      hasIneligible = q.options.some(function(opt) { return opt.next === 'ineligible'; });
+    }
 
     lines.push("router.get('/" + q.id + "', function (req, res) {");
     lines.push("  res.render('" + q.id + "')");
@@ -155,16 +171,34 @@ function generateRoutesJs(spec) {
     lines.push("    res.locals.errors = { '" + q.id + "': '" + validationMsg + "' }");
     lines.push("    return res.render('" + q.id + "')");
     lines.push('  }');
-    if (ineligibleValue) {
-      lines.push("  if (answer === '" + ineligibleValue + "') {");
-      lines.push("    return res.redirect('/ineligible-" + q.id + "')");
+
+    if (q.type === 'radio' && Array.isArray(q.options)) {
+      // Branching: check each option's next field
+      q.options.forEach(function(opt, oi) {
+        var target;
+        if (opt.next === 'ineligible') {
+          target = '/ineligible-' + q.id;
+        } else if (opt.next === 'check-answers') {
+          target = '/check-answers';
+        } else {
+          target = '/' + opt.next;
+        }
+        var condition = oi === 0 ? '  if' : '  } else if';
+        lines.push(condition + " (answer === '" + jsStr(opt.value) + "') {");
+        lines.push("    return res.redirect('" + target + "')");
+      });
       lines.push('  }');
+      // Fallback: next question in sequence
+      lines.push("  res.redirect('/" + nextPage + "')");
+    } else {
+      // Text/textarea: linear redirect
+      lines.push("  res.redirect('/" + nextPage + "')");
     }
-    lines.push("  res.redirect('/" + nextPage + "')");
+
     lines.push('})');
     lines.push('');
 
-    if (ineligibleValue) {
+    if (hasIneligible) {
       lines.push("router.get('/ineligible-" + q.id + "', function (req, res) {");
       lines.push("  res.render('ineligible-" + q.id + "')");
       lines.push('})');
@@ -258,7 +292,7 @@ function generateQuestionPage(q) {
   if (q.type === 'radio') {
     const items = q.options
       .map(function(opt) {
-        return '        { value: "' + njkAttr(slug(opt)) + '", text: "' + njkAttr(opt) + '" }';
+        return '        { value: "' + njkAttr(opt.value) + '", text: "' + njkAttr(opt.text) + '" }';
       })
       .join(',\n');
 
@@ -496,7 +530,8 @@ function buildPrototypeFiles(rawSpec) {
 
   spec.questions.forEach(function(q) {
     files['app/views/' + q.id + '.html'] = generateQuestionPage(q);
-    if (q.ineligibleAnswer) {
+    var hasIneligible = q.type === 'radio' && Array.isArray(q.options) && q.options.some(function(o) { return o.next === 'ineligible'; });
+    if (hasIneligible) {
       files['app/views/ineligible-' + q.id + '.html'] = generateIneligiblePage(q);
     }
   });
