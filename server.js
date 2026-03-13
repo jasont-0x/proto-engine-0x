@@ -2,8 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const fetch = require('node-fetch');
 const pdfParse = require('pdf-parse');
-const gdsPrompt = require('./gds-prompt');
-const { buildPrototypeFiles } = require('./generator');
+const gdsPromptV1 = require('./gds-prompt-v1');
+const { buildPrototypeFiles: buildPrototypeFilesV1 } = require('./generator-v1');
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
@@ -165,9 +165,77 @@ async function getLog(owner, token) {
   }
 }
 
-// ─── Frontend ─────────────────────────────────────────────────────────────────
+// ─── Launcher ─────────────────────────────────────────────────────────────────
 
 app.get('/', (req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype Engine</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    .govuk-header { background: #0b0c0c; padding: 12px 0; border-bottom: 10px solid #1d70b8; }
+    .govuk-header__inner { max-width: 960px; margin: 0 auto; padding: 0 30px; display: flex; align-items: center; gap: 20px; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
+    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 10px; }
+    .lede { font-size: 20px; color: #0b0c0c; margin-bottom: 40px; line-height: 1.5; }
+    .version-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1px; background: #d8dde0; border: 1px solid #d8dde0; }
+    .version-card { background: white; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .version-card:hover { background: #f8f8f8; }
+    .version-card.disabled { background: #f3f2f1; }
+    .version-card.disabled:hover { background: #f3f2f1; }
+    .version-info { flex: 1; }
+    .version-name { font-size: 24px; font-weight: 700; color: #0b0c0c; text-decoration: none; }
+    .version-name:hover { text-decoration: underline; }
+    .version-desc { font-size: 16px; color: #505a5f; margin-top: 4px; }
+    .version-card.disabled .version-name { color: #6f777b; cursor: default; }
+    .version-card.disabled .version-name:hover { text-decoration: none; }
+    .version-card.disabled .version-desc { color: #b1b4b6; }
+    .badge { display: inline-block; font-size: 14px; font-weight: 700; padding: 4px 10px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .badge--stable { background: #00703c; color: white; }
+    .badge--coming-soon { background: #b1b4b6; color: white; }
+    footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
+    @media (max-width: 768px) { h1 { font-size: 32px; } }
+  </style>
+</head>
+<body>
+<header class="govuk-header">
+  <div class="govuk-header__inner">
+    <a href="/" style="text-decoration:none;font-size:22px;font-weight:700;color:white;letter-spacing:-0.5px;">Prototype Engine</a>
+  </div>
+</header>
+<main>
+  <h1>Prototype Engine</h1>
+  <p class="lede">Choose a generator version to build your GOV.UK prototype.</p>
+  <ul class="version-list">
+    <li class="version-card">
+      <div class="version-info">
+        <a href="/v1" class="version-name">v1: Simple prototypes</a>
+        <p class="version-desc">Linear question flows with validation, check-your-answers and confirmation pages.</p>
+      </div>
+      <span class="badge badge--stable">Stable</span>
+    </li>
+    <li class="version-card disabled">
+      <div class="version-info">
+        <span class="version-name">v2: Branching prototypes</span>
+        <p class="version-desc">Multi-path journeys with conditional routing and branching logic.</p>
+      </div>
+      <span class="badge badge--coming-soon">Coming soon</span>
+    </li>
+  </ul>
+  <p style="margin-top:24px;font-size:15px;"><a href="/prototypes" style="color:#505a5f;">View previously generated prototypes</a></p>
+</main>
+<footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
+</body>
+</html>`);
+});
+
+// ─── v1 Frontend ──────────────────────────────────────────────────────────────
+
+app.get('/v1', (req, res) => {
   res.send(`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -393,7 +461,7 @@ app.get('/', (req, res) => {
 
     try {
       const formData = new FormData(this);
-      const response = await fetch('/generate', { method: 'POST', body: formData });
+      const response = await fetch('/generate-v1', { method: 'POST', body: formData });
 
       stopFakeProgress();
 
@@ -432,9 +500,9 @@ app.get('/', (req, res) => {
 </html>`);
 });
 
-// ─── Generate endpoint ────────────────────────────────────────────────────────
+// ─── v1 Generate endpoint ─────────────────────────────────────────────────────
 
-app.post('/generate', upload.single('pdf'), async (req, res) => {
+app.post('/generate-v1', upload.single('pdf'), async (req, res) => {
   try {
     const { brief, url } = req.body;
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -471,7 +539,7 @@ app.post('/generate', upload.single('pdf'), async (req, res) => {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
-        system: gdsPrompt,
+        system: gdsPromptV1,
         messages: [{ role: 'user', content: userMessage }]
       })
     });
@@ -497,7 +565,7 @@ app.post('/generate', upload.single('pdf'), async (req, res) => {
     }
 
     // Step 2: Build and push to GitHub
-    const files = buildPrototypeFiles(spec);
+    const files = buildPrototypeFilesV1(spec);
     const timestamp = Date.now();
     const repoName = `prototype-${timestamp}`;
 
