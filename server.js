@@ -183,6 +183,8 @@ app.get('/', (req, res) => {
     .crown-svg { width: 36px; height: 32px; fill: white; }
     .govuk-header__logotype-text { font-size: 30px; font-weight: 700; color: white; letter-spacing: -1px; }
     .govuk-header__service-name { color: white; font-size: 19px; font-weight: 400; border-left: 1px solid #626a6e; padding-left: 20px; margin-left: 10px; }
+    .govuk-header__nav { margin-left: auto; }
+    .govuk-header__nav a { color: white; font-size: 16px; font-weight: 600; text-decoration: underline; padding: 6px 12px; border: 2px solid rgba(255,255,255,0.4); }
     main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
     .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 60px; align-items: start; }
     h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 20px; }
@@ -259,6 +261,7 @@ app.get('/', (req, res) => {
       <span class="govuk-header__logotype-text">GOV.UK</span>
     </a>
     <span class="govuk-header__service-name">Prototype Engine</span>
+    <nav class="govuk-header__nav"><a href="/prototypes">All prototypes</a></nav>
   </div>
 </header>
 <main>
@@ -331,6 +334,9 @@ app.get('/', (req, res) => {
         <li>Click Generate.</li>
         <li>Wait about 3 minutes while Claude builds and deploys it.</li>
         <li>Click the link to open your live prototype.</li>
+      </ol>
+      <a href="/prototypes" class="all-protos-link">View all prototypes →</a>
+    </div>
   </div>
 </main>
 <footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
@@ -628,6 +634,7 @@ app.get('/prototypes', async (req, res) => {
       <span class="govuk-header__logotype-text">GOV.UK</span>
     </a>
     <span class="govuk-header__service-name">Prototype Engine</span>
+    <nav class="govuk-header__nav"><a href="/prototypes">All prototypes</a></nav>
   </div>
 </header>
 <main>
