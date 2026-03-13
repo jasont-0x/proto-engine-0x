@@ -579,11 +579,9 @@ app.get('/prototypes', async (req, res) => {
     ? '<tr><td colspan="3" style="padding:30px 0;color:#505a5f;font-size:16px;">No prototypes generated yet.</td></tr>'
     : log.map(function(entry) {
         return '<tr>' +
-          '<td><strong style="display:block;font-size:19px;margin-bottom:4px;">' + entry.serviceName + '</strong>' +
-          (entry.brief ? '<span style="font-size:14px;color:#505a5f;">' + entry.brief + (entry.brief.length >= 120 ? '…' : '') + '</span>' : '') +
-          '</td>' +
+          '<td style="font-size:19px;font-weight:700;color:#0b0c0c;">' + entry.serviceName + '</td>' +
           '<td style="white-space:nowrap;color:#505a5f;font-size:16px;padding-right:24px;">' + timeAgo(entry.createdAt) + '</td>' +
-          '<td style="white-space:nowrap;"><a href="' + entry.url + '" target="_blank" rel="noopener" style="font-size:16px;color:#1d70b8;">Open →</a></td>' +
+          '<td style="white-space:nowrap;"><a href="' + entry.url + '" target="_blank" rel="noopener" style="font-size:16px;color:#1d70b8;font-weight:700;">Open →</a></td>' +
           '</tr>';
       }).join('');
 
@@ -612,7 +610,7 @@ app.get('/prototypes', async (req, res) => {
     thead th { font-size: 16px; font-weight: 700; color: #0b0c0c; padding: 12px 16px 12px 0; text-align: left; border-bottom: 2px solid #0b0c0c; }
     tbody tr { border-bottom: 1px solid #b1b4b6; }
     tbody tr:hover { background: #f3f2f1; }
-    tbody td { padding: 16px 16px 16px 0; vertical-align: top; }
+    tbody td { padding: 14px 16px 14px 0; vertical-align: middle; }
     footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
   </style>
 </head>
