@@ -184,7 +184,7 @@ app.get('/', (req, res) => {
     .govuk-header__logotype-text { font-size: 30px; font-weight: 700; color: white; letter-spacing: -1px; }
     .govuk-header__service-name { color: white; font-size: 19px; font-weight: 400; border-left: 1px solid #626a6e; padding-left: 20px; margin-left: 10px; }
     main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
-    .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 60px; align-items: start; }
+
     h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 20px; }
     .lede { font-size: 20px; color: #0b0c0c; margin-bottom: 40px; line-height: 1.5; }
     label { display: block; font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 8px; }
@@ -239,14 +239,9 @@ app.get('/', (req, res) => {
     .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .steps { background: white; padding: 24px; border: 1px solid #b1b4b6; }
-    .steps h2 { font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 16px; }
-    .steps ol { padding-left: 20px; }
-    .steps li { font-size: 16px; color: #0b0c0c; margin-bottom: 12px; line-height: 1.5; }
-    .all-protos-link { display: inline-block; margin-top: 16px; font-size: 16px; color: #1d70b8; }
 
     footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
-    @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } h1 { font-size: 32px; } }
+@media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
 </head>
 <body>
@@ -263,7 +258,7 @@ app.get('/', (req, res) => {
   </div>
 </header>
 <main>
-  <div class="two-col">
+<div>
     <div>
       <h1>Build a GOV.UK prototype</h1>
       <p class="lede">Describe your service and Claude will build a working GOV.UK prototype — no code required.</p>
@@ -325,16 +320,6 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
-    <div class="steps">
-      <h2>How it works</h2>
-      <ol>
-        <li>Describe your service — one line or a full brief.</li>
-        <li>Click Generate.</li>
-        <li>Wait about 3 minutes while Claude builds and deploys it.</li>
-        <li>Click the link to open your live prototype.</li>
-      </ol>
-      <a href="/prototypes" class="all-protos-link">View all prototypes →</a>
-    </div>
   </div>
 </main>
 <footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
@@ -614,7 +599,7 @@ app.get('/prototypes', async (req, res) => {
     .proto-name { font-size: 19px; font-weight: 700; color: #0b0c0c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .proto-meta { font-size: 16px; color: #505a5f; margin-top: 3px; }
     .proto-card-right { flex-shrink: 0; }
-    .open-link { display: inline-flex; align-items: center; gap: 6px; background: #1d70b8; color: white; text-decoration: none; padding: 10px 18px; font-size: 16px; font-weight: 700; font-family: inherit; }
+    .open-link { display: inline-flex; align-items: center; justify-content: center; width: 160px; background: #1d70b8; color: white; text-decoration: none; padding: 10px 0; font-size: 16px; font-weight: 700; font-family: inherit; }
     .open-link:hover { background: #003078; }
     .empty-state { background: white; border: 1px solid #b1b4b6; padding: 60px 30px; text-align: center; color: #505a5f; font-size: 16px; }
     footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
