@@ -183,8 +183,6 @@ app.get('/', (req, res) => {
     .crown-svg { width: 36px; height: 32px; fill: white; }
     .govuk-header__logotype-text { font-size: 30px; font-weight: 700; color: white; letter-spacing: -1px; }
     .govuk-header__service-name { color: white; font-size: 19px; font-weight: 400; border-left: 1px solid #626a6e; padding-left: 20px; margin-left: 10px; }
-    .govuk-header__nav { margin-left: auto; }
-    .govuk-header__nav a { color: white; font-size: 16px; font-weight: 600; text-decoration: underline; padding: 6px 12px; border: 2px solid rgba(255,255,255,0.4); }
     main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
     .two-col { display: grid; grid-template-columns: 2fr 1fr; gap: 60px; align-items: start; }
     h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 20px; }
@@ -261,7 +259,7 @@ app.get('/', (req, res) => {
       <span class="govuk-header__logotype-text">GOV.UK</span>
     </a>
     <span class="govuk-header__service-name">Prototype Engine</span>
-    <nav class="govuk-header__nav"><a href="/prototypes">All prototypes</a></nav>
+    
   </div>
 </header>
 <main>
@@ -594,34 +592,32 @@ app.get('/prototypes', async (req, res) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>All prototypes — GOV.UK Prototype Engine</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
     .govuk-header { background: #0b0c0c; padding: 12px 0; border-bottom: 10px solid #1d70b8; }
     .govuk-header__inner { max-width: 960px; margin: 0 auto; padding: 0 30px; display: flex; align-items: center; gap: 20px; }
     .govuk-header__crown { display: flex; align-items: center; gap: 10px; color: white; text-decoration: none; }
     .crown-svg { width: 36px; height: 32px; fill: white; }
     .govuk-header__logotype-text { font-size: 30px; font-weight: 700; color: white; letter-spacing: -1px; }
-    .govuk-header__service-name { color: white; font-size: 16px; font-weight: 400; border-left: 1px solid #626a6e; padding-left: 20px; margin-left: 10px; }
+    .govuk-header__service-name { color: white; font-size: 19px; font-weight: 400; border-left: 1px solid #626a6e; padding-left: 20px; margin-left: 10px; }
     main { max-width: 960px; margin: 0 auto; padding: 48px 30px 80px; flex: 1; width: 100%; }
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
     .page-header-left h1 { font-size: 32px; font-weight: 700; color: #0b0c0c; letter-spacing: -0.5px; }
     .page-header-left p { font-size: 14px; color: #6f777b; margin-top: 4px; font-weight: 500; }
-    .new-btn { background: #00703c; color: white; text-decoration: none; padding: 11px 20px; font-size: 15px; font-weight: 600; font-family: inherit; border-radius: 4px; white-space: nowrap; }
+    .new-btn { background: #00703c; color: white; text-decoration: none; padding: 10px 18px; font-size: 16px; font-weight: 700; font-family: inherit; white-space: nowrap; }
     .new-btn:hover { background: #005a30; }
-    .proto-list { display: flex; flex-direction: column; gap: 1px; background: #d8dde0; border: 1px solid #d8dde0; border-radius: 6px; overflow: hidden; }
+    .proto-list { display: flex; flex-direction: column; gap: 1px; background: #d8dde0; border: 1px solid #d8dde0; overflow: hidden; }
     .proto-card { background: white; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; transition: background 0.1s; }
     .proto-card:hover { background: #f8f8f8; }
     .proto-card-left { flex: 1; min-width: 0; }
-    .proto-name { font-size: 17px; font-weight: 600; color: #0b0c0c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .proto-meta { font-size: 13px; color: #6f777b; margin-top: 3px; font-weight: 400; }
+    .proto-name { font-size: 19px; font-weight: 700; color: #0b0c0c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .proto-meta { font-size: 16px; color: #505a5f; margin-top: 3px; }
     .proto-card-right { flex-shrink: 0; }
-    .open-link { display: inline-flex; align-items: center; gap: 6px; background: #1d70b8; color: white; text-decoration: none; padding: 8px 16px; font-size: 14px; font-weight: 600; font-family: inherit; border-radius: 4px; }
+    .open-link { display: inline-flex; align-items: center; gap: 6px; background: #1d70b8; color: white; text-decoration: none; padding: 10px 18px; font-size: 16px; font-weight: 700; font-family: inherit; }
     .open-link:hover { background: #003078; }
-    .empty-state { background: white; border: 1px solid #d8dde0; border-radius: 6px; padding: 60px 30px; text-align: center; color: #6f777b; font-size: 16px; }
-    footer { background: #0b0c0c; padding: 20px 30px; color: #6f777b; font-size: 13px; text-align: center; margin-top: auto; }
+    .empty-state { background: white; border: 1px solid #b1b4b6; padding: 60px 30px; text-align: center; color: #505a5f; font-size: 16px; }
+    footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
   </style>
 </head>
 <body>
@@ -634,7 +630,7 @@ app.get('/prototypes', async (req, res) => {
       <span class="govuk-header__logotype-text">GOV.UK</span>
     </a>
     <span class="govuk-header__service-name">Prototype Engine</span>
-    <nav class="govuk-header__nav"><a href="/prototypes">All prototypes</a></nav>
+    
   </div>
 </header>
 <main>
