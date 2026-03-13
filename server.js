@@ -605,7 +605,6 @@ app.get('/prototypes', async (req, res) => {
       <h1>All prototypes</h1>
       <p>${log.length} generated</p>
     </div>
-    <a href="/" class="new-btn">+ New prototype</a>
   </div>
   ${log.length === 0
     ? '<div class="empty-state">No prototypes generated yet.</div>'
@@ -621,6 +620,7 @@ app.get('/prototypes', async (req, res) => {
         '</div>';
       }).join('') + '</div>'
   }
+  <p style="margin-top:24px;font-size:15px;"><a href="/" style="color:#505a5f;">← Back</a></p>
 </main>
 <footer>GOV.UK Prototype Kit v13 &middot; Powered by Claude Sonnet</footer>
 </body>
