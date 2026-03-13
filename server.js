@@ -239,14 +239,11 @@ app.get('/', (req, res) => {
     .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .steps { background: white; padding: 28px; border: 1px solid #d8dde0; border-radius: 6px; }
-    .steps h2 { font-size: 11px; font-weight: 700; color: #6f777b; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 20px; }
-    .steps ol { list-style: none; padding: 0; }
-    .steps li { font-size: 15px; color: #0b0c0c; line-height: 1.5; display: flex; gap: 14px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #f3f2f1; }
-    .steps li:last-child { border-bottom: none; }
-    .step-num { font-size: 11px; font-weight: 700; color: #1d70b8; background: #e8f0fb; border-radius: 50%; min-width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
-    .all-protos-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 20px; font-size: 14px; font-weight: 600; color: #1d70b8; text-decoration: none; border-top: 1px solid #f3f2f1; padding-top: 20px; width: 100%; }
-    .all-protos-link:hover { color: #003078; }
+    .steps { background: white; padding: 24px; border: 1px solid #b1b4b6; }
+    .steps h2 { font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 16px; }
+    .steps ol { padding-left: 20px; }
+    .steps li { font-size: 16px; color: #0b0c0c; margin-bottom: 12px; line-height: 1.5; }
+    .all-protos-link { display: inline-block; margin-top: 16px; font-size: 16px; color: #1d70b8; }
 
     footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
     @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } h1 { font-size: 32px; } }
@@ -267,8 +264,9 @@ app.get('/', (req, res) => {
 <main>
   <div class="two-col">
     <div>
-      <h1>Build a GOV.UK prototype</h1>
-      <p class="lede">Describe the service you need to prototype. One sentence is enough.</p>
+      <h1>Turn a brief into a working prototype</h1>
+      <p class="lede">For content designers. Write a brief, upload a policy doc, or paste a URL — Claude builds a GOV.UK-compliant journey with validation, error states, and a live URL. No code required.</p>
+      <p style="font-size:15px;color:#505a5f;margin-bottom:32px;padding:12px 16px;background:#f3f2f1;border-left:4px solid #b1b4b6;">This is an experimental tool under active development. Prototypes are basic and may not reflect all GDS design patterns.</p>
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="brief">Describe your service</label>
@@ -333,10 +331,10 @@ app.get('/', (req, res) => {
         <li><span class="step-num">1</span>Describe your service — one line is enough.</li>
         <li><span class="step-num">2</span>Click Generate.</li>
         <li><span class="step-num">3</span>Wait ~3 minutes while Claude builds and deploys it.</li>
-        <li><span class="step-num">4</span>Open your live prototype and share the link.</li>
-      </ol>
-      <a href="/prototypes" class="all-protos-link">View all prototypes &rarr;</a>
-    </div>
+        <li>Describe your service — one line or a full brief.</li>
+        <li>Click Generate.</li>
+        <li>Wait about 3 minutes while Claude builds and deploys it.</li>
+        <li>Click the link to open your live prototype.</li>
   </div>
 </main>
 <footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
