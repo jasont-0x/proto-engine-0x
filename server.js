@@ -264,9 +264,8 @@ app.get('/', (req, res) => {
 <main>
   <div class="two-col">
     <div>
-      <h1>Turn a brief into a working prototype</h1>
-      <p class="lede">For content designers. Write a brief, upload a policy doc, or paste a URL — Claude builds a GOV.UK-compliant journey with validation, error states, and a live URL. No code required.</p>
-      <p style="font-size:15px;color:#505a5f;margin-bottom:32px;padding:12px 16px;background:#f3f2f1;border-left:4px solid #b1b4b6;">This is an experimental tool under active development. Prototypes are basic and may not reflect all GDS design patterns.</p>
+      <h1>Build a GOV.UK prototype</h1>
+      <p class="lede">Describe your service and Claude will build a working GOV.UK prototype — no code required.</p>
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="brief">Describe your service</label>
@@ -328,9 +327,6 @@ app.get('/', (req, res) => {
     <div class="steps">
       <h2>How it works</h2>
       <ol>
-        <li><span class="step-num">1</span>Describe your service — one line is enough.</li>
-        <li><span class="step-num">2</span>Click Generate.</li>
-        <li><span class="step-num">3</span>Wait ~3 minutes while Claude builds and deploys it.</li>
         <li>Describe your service — one line or a full brief.</li>
         <li>Click Generate.</li>
         <li>Wait about 3 minutes while Claude builds and deploys it.</li>
