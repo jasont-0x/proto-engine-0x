@@ -258,7 +258,7 @@ app.get('/', (req, res) => {
   </div>
 </header>
 <main>
-<div>
+<div style="max-width: 600px;">
     <div>
       <h1>Build a GOV.UK prototype</h1>
       <p class="lede">Describe your service and Claude will build a working GOV.UK prototype — no code required.</p>
