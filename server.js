@@ -173,16 +173,12 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GOV.UK Prototype Engine</title>
+  <title>Transform Prototype Engine</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
-    .govuk-header { background: #0b0c0c; padding: 12px 0; border-bottom: 10px solid #1d70b8; }
+    .govuk-header { background: #0b0c0c; padding: 12px 0; border-bottom: 4px solid #E84A0C; }
     .govuk-header__inner { max-width: 960px; margin: 0 auto; padding: 0 30px; display: flex; align-items: center; gap: 20px; }
-    .govuk-header__crown { display: flex; align-items: center; gap: 10px; color: white; text-decoration: none; }
-    .crown-svg { width: 36px; height: 32px; fill: white; }
-    .govuk-header__logotype-text { font-size: 30px; font-weight: 700; color: white; letter-spacing: -1px; }
-    .govuk-header__service-name { color: white; font-size: 19px; font-weight: 400; border-left: 1px solid #626a6e; padding-left: 20px; margin-left: 10px; }
     main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
 
     h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 20px; }
@@ -195,39 +191,39 @@ app.get('/', (req, res) => {
     .file-upload-label { display: inline-block; padding: 8px 14px; background: #f3f2f1; border: 2px solid #0b0c0c; cursor: pointer; font-size: 16px; margin-bottom: 8px; }
     .file-name { font-size: 16px; color: #505a5f; margin-bottom: 24px; }
     input[type="file"] { display: none; }
-    .generate-btn { background: #00703c; color: white; border: none; padding: 13px 22px; font-size: 19px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-    .generate-btn:hover { background: #005a30; }
+    .generate-btn { background: #E84A0C; color: white; border: none; padding: 13px 22px; font-size: 19px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+    .generate-btn:hover { background: #c73d09; }
     .generate-btn:focus { outline: 3px solid #ffdd00; outline-offset: 0; }
-    .generate-btn:disabled { background: #00703c; opacity: 0.75; cursor: wait; }
+    .generate-btn:disabled { background: #E84A0C; opacity: 0.75; cursor: wait; }
     .btn-arrow { width: 20px; height: 20px; fill: white; }
 
     /* Progress bar */
     .progress-panel { display: none; margin-top: 24px; background: white; border: 1px solid #d8dde0; border-radius: 6px; padding: 24px; }
     .progress-panel.visible { display: block; animation: fadeIn 0.2s ease; }
     .progress-bar-track { background: #f3f2f1; height: 4px; margin-bottom: 24px; border-radius: 2px; overflow: hidden; }
-    .progress-bar-fill { height: 4px; background: #1d70b8; width: 0%; transition: width 0.6s ease; border-radius: 2px; }
-    .progress-bar-fill.complete { background: #00703c; }
+    .progress-bar-fill { height: 4px; background: #E84A0C; width: 0%; transition: width 0.6s ease; border-radius: 2px; }
+    .progress-bar-fill.complete { background: #E84A0C; }
     .progress-steps { list-style: none; padding: 0; }
     .progress-steps li { font-size: 14px; color: #b1b4b6; padding: 9px 0; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f3f2f1; transition: color 0.2s; }
     .progress-steps li:last-child { border-bottom: none; }
     .progress-steps li.active { color: #0b0c0c; font-weight: 600; }
-    .progress-steps li.done { color: #00703c; }
+    .progress-steps li.done { color: #E84A0C; }
     .step-icon { width: 16px; text-align: center; font-size: 12px; flex-shrink: 0; }
 
     /* Done panel */
-    .done-panel { display: none; margin-top: 30px; background: white; border-left: 5px solid #00703c; padding: 24px; }
+    .done-panel { display: none; margin-top: 30px; background: white; border-left: 5px solid #E84A0C; padding: 24px; }
     .done-panel.visible { display: block; animation: fadeIn 0.4s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .done-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-    .done-tick-circle { width: 40px; height: 40px; border-radius: 50%; background: #00703c; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .done-tick-circle { width: 40px; height: 40px; border-radius: 50%; background: #E84A0C; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
     @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
     .done-tick-circle svg { width: 22px; height: 22px; fill: none; stroke: white; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
     .done-tick-circle svg path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: drawTick 0.35s ease 0.3s forwards; }
     @keyframes drawTick { to { stroke-dashoffset: 0; } }
     .done-title { font-size: 24px; font-weight: 700; color: #0b0c0c; }
     .done-sub { font-size: 16px; color: #505a5f; margin-bottom: 20px; }
-    .open-proto-btn { display: inline-block; background: #1d70b8; color: white; padding: 12px 20px; font-size: 19px; font-weight: 700; font-family: inherit; text-decoration: none; }
-    .open-proto-btn:hover { background: #003078; }
+    .open-proto-btn { display: inline-block; background: #E84A0C; color: white; padding: 12px 20px; font-size: 19px; font-weight: 700; font-family: inherit; text-decoration: none; }
+    .open-proto-btn:hover { background: #c73d09; }
 
     /* Error panel */
     .error-panel { display: none; margin-top: 30px; background: white; border-left: 5px solid #d4351c; padding: 24px; }
@@ -247,13 +243,7 @@ app.get('/', (req, res) => {
 <body>
 <header class="govuk-header">
   <div class="govuk-header__inner">
-    <a href="/" class="govuk-header__crown">
-      <svg class="crown-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 97" focusable="false">
-        <path d="M25 30.2c3.5 1.5 7.7-.2 9.1-3.7 1.5-3.6-.2-7.8-3.9-9.2-3.6-1.4-7.6.3-9.1 3.9-1.4 3.5.3 7.5 3.9 9zM9 39.5c3.6 1.5 7.8-.2 9.2-3.7 1.5-3.6-.3-7.8-3.9-9.1-3.6-1.5-7.6.2-9.1 3.8-1.4 3.5.3 7.5 3.8 9zM4.4 57.2c3.5 1.5 7.7-.2 9.1-3.8 1.5-3.6-.2-7.7-3.9-9.1-3.5-1.5-7.6.3-9.1 3.8-1.4 3.5.3 7.6 3.9 9.1zm38.3-21.4c3.5 1.5 7.7-.2 9.1-3.8 1.5-3.6-.2-7.7-3.9-9.1-3.6-1.5-7.6.3-9.1 3.8-1.3 3.6.4 7.7 3.9 9.1zm64.4-5.6c-3.6 1.5-7.8-.2-9.1-3.7-1.5-3.6.2-7.8 3.8-9.2 3.6-1.4 7.7.3 9.2 3.9 1.3 3.5-.4 7.5-3.9 9zm15.9 9.3c-3.6 1.5-7.7-.2-9.1-3.7-1.5-3.6.2-7.8 3.7-9.1 3.6-1.5 7.7.2 9.2 3.8 1.5 3.5-.3 7.5-3.8 9zm4.7 17.7c-3.6 1.5-7.8-.2-9.2-3.8-1.5-3.6.2-7.7 3.9-9.1 3.6-1.5 7.7.3 9.2 3.8 1.3 3.5-.4 7.6-3.9 9.1zM89.3 35.8c-3.6 1.5-7.8-.2-9.2-3.8-1.4-3.6.2-7.7 3.9-9.1 3.6-1.5 7.7.3 9.2 3.8 1.4 3.6-.3 7.7-3.9 9.1zM69.7 17.7l8.9 4.7V9.3l-8.9 2.8c-.2-.3-.5-.6-.9-.9L72.4 0H59.6l3.5 11.2c-.3.3-.6.5-.9.9l-8.8-2.8v13.1l8.8-4.7c.3.3.6.7.9.9l-5 15.4v.1h14.2v-.1l-5-15.4c.4-.2.7-.6 1-.9zM66 92.8c16.9 0 32.8 1.1 47.1 3.2 4-16.9 8.9-26.7 14-33.5l-9.6-3.4c1 4.9 1.1 7.2 0 10.2-1.5-1.4-3-4.3-4.2-8.7L108.6 76c2.8-2 5-3.2 7.5-3.3-4.4 9.4-10 11.9-13.6 11.2-4.3-.8-6.3-4.6-5.6-7.9 1-4.7 5.7-5.9 8-.5 4.3-8.7-3-11.4-7.6-8.8 7.1-7.2 7.9-13.5 2.1-21.1-8 6.1-8.1 12.3-4.5 20.8-4.7-5.4-12.1-2.5-9.5 6.2 3.4-5.2 7.9-2 7.2 3.1-.6 4.3-6.4 7.8-13.5 7.2-10.3-.9-10.9-8-11.2-13.8 2.5-.5 7.1 1.8 11 7.3L80.2 60c-4.1 4.4-8 5.3-12.3 5.4 1.4-4.4 8-11.6 8-11.6H55.5s6.4 7.2 7.9 11.6c-4.2-.1-8-1-12.3-5.4l1.4 16.4c3.9-5.5 8.5-7.7 10.9-7.3-.3 5.8-.9 12.8-11.1 13.8-7.2.6-12.9-2.9-13.5-7.2-.7-5 3.8-8.3 7.1-3.1 2.7-8.7-4.6-11.6-9.4-6.2 3.7-8.5 3.6-14.7-4.6-20.8-5.8 7.6-5 13.9 2.2 21.1-4.7-2.6-11.9.1-7.7 8.8 2.3-5.5 7.1-4.2 8.1.5.7 3.3-1.3 7.1-5.7 7.9-3.5.7-9-1.8-13.5-11.2 2.5.1 4.7 1.3 7.5 3.3l-4.7-15.4c-1.2 4.4-2.7 7.2-4.3 8.7-1.1-3-.9-5.3 0-10.2l-9.5 3.4c5 6.9 9.9 16.7 14 33.5 14.8-2.1 30.8-3.2 47.7-3.2z"/>
-      </svg>
-      <span class="govuk-header__logotype-text">GOV.UK</span>
-    </a>
-    <span class="govuk-header__service-name">Prototype Engine</span>
+    <a href="/" style="text-decoration:none;display:flex;align-items:center;gap:12px;"><span style="font-size:24px;font-weight:700;color:white;letter-spacing:-0.5px;">Transform</span><span style="width:6px;height:6px;background:#E84A0C;border-radius:50%;display:inline-block;"></span><span style="color:rgba(255,255,255,0.7);font-size:16px;font-weight:400;">Prototype Engine</span></a>
     
   </div>
 </header>
@@ -286,6 +276,7 @@ app.get('/', (req, res) => {
             <path d="M0 20h40l-8-8 4-4 16 16-16 16-4-4 8-8H0z"/>
           </svg>
         </button>
+        <p style="margin-top:12px;font-size:15px;color:#505a5f;">or <a href="/prototypes" style="color:#505a5f;">view previously generated prototypes</a></p>
       </form>
 
       <!-- Progress panel -->
@@ -576,22 +567,18 @@ app.get('/prototypes', async (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All prototypes — GOV.UK Prototype Engine</title>
+  <title>All prototypes — Transform Prototype Engine</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
-    .govuk-header { background: #0b0c0c; padding: 12px 0; border-bottom: 10px solid #1d70b8; }
+    .govuk-header { background: #0b0c0c; padding: 12px 0; border-bottom: 4px solid #E84A0C; }
     .govuk-header__inner { max-width: 960px; margin: 0 auto; padding: 0 30px; display: flex; align-items: center; gap: 20px; }
-    .govuk-header__crown { display: flex; align-items: center; gap: 10px; color: white; text-decoration: none; }
-    .crown-svg { width: 36px; height: 32px; fill: white; }
-    .govuk-header__logotype-text { font-size: 30px; font-weight: 700; color: white; letter-spacing: -1px; }
-    .govuk-header__service-name { color: white; font-size: 19px; font-weight: 400; border-left: 1px solid #626a6e; padding-left: 20px; margin-left: 10px; }
     main { max-width: 960px; margin: 0 auto; padding: 48px 30px 80px; flex: 1; width: 100%; }
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
     .page-header-left h1 { font-size: 32px; font-weight: 700; color: #0b0c0c; letter-spacing: -0.5px; }
     .page-header-left p { font-size: 14px; color: #6f777b; margin-top: 4px; font-weight: 500; }
-    .new-btn { background: #00703c; color: white; text-decoration: none; padding: 10px 18px; font-size: 16px; font-weight: 700; font-family: inherit; white-space: nowrap; }
-    .new-btn:hover { background: #005a30; }
+    .new-btn { background: #E84A0C; color: white; text-decoration: none; padding: 10px 18px; font-size: 16px; font-weight: 700; font-family: inherit; white-space: nowrap; }
+    .new-btn:hover { background: #c73d09; }
     .proto-list { display: flex; flex-direction: column; gap: 1px; background: #d8dde0; border: 1px solid #d8dde0; overflow: hidden; }
     .proto-card { background: white; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; transition: background 0.1s; }
     .proto-card:hover { background: #f8f8f8; }
@@ -599,8 +586,8 @@ app.get('/prototypes', async (req, res) => {
     .proto-name { font-size: 19px; font-weight: 700; color: #0b0c0c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .proto-meta { font-size: 16px; color: #505a5f; margin-top: 3px; }
     .proto-card-right { flex-shrink: 0; }
-    .open-link { display: inline-flex; align-items: center; justify-content: center; width: 160px; background: #1d70b8; color: white; text-decoration: none; padding: 10px 0; font-size: 16px; font-weight: 700; font-family: inherit; }
-    .open-link:hover { background: #003078; }
+    .open-link { display: inline-flex; align-items: center; justify-content: center; width: 160px; background: #E84A0C; color: white; text-decoration: none; padding: 10px 0; font-size: 16px; font-weight: 700; font-family: inherit; }
+    .open-link:hover { background: #c73d09; }
     .empty-state { background: white; border: 1px solid #b1b4b6; padding: 60px 30px; text-align: center; color: #505a5f; font-size: 16px; }
     footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
   </style>
@@ -608,13 +595,7 @@ app.get('/prototypes', async (req, res) => {
 <body>
 <header class="govuk-header">
   <div class="govuk-header__inner">
-    <a href="/" class="govuk-header__crown">
-      <svg class="crown-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 97" focusable="false">
-        <path d="M25 30.2c3.5 1.5 7.7-.2 9.1-3.7 1.5-3.6-.2-7.8-3.9-9.2-3.6-1.4-7.6.3-9.1 3.9-1.4 3.5.3 7.5 3.9 9zM9 39.5c3.6 1.5 7.8-.2 9.2-3.7 1.5-3.6-.3-7.8-3.9-9.1-3.6-1.5-7.6.2-9.1 3.8-1.4 3.5.3 7.5 3.8 9zM4.4 57.2c3.5 1.5 7.7-.2 9.1-3.8 1.5-3.6-.2-7.7-3.9-9.1-3.5-1.5-7.6.3-9.1 3.8-1.4 3.5.3 7.6 3.9 9.1zm38.3-21.4c3.5 1.5 7.7-.2 9.1-3.8 1.5-3.6-.2-7.7-3.9-9.1-3.6-1.5-7.6.3-9.1 3.8-1.3 3.6.4 7.7 3.9 9.1zm64.4-5.6c-3.6 1.5-7.8-.2-9.1-3.7-1.5-3.6.2-7.8 3.8-9.2 3.6-1.4 7.7.3 9.2 3.9 1.3 3.5-.4 7.5-3.9 9zm15.9 9.3c-3.6 1.5-7.7-.2-9.1-3.7-1.5-3.6.2-7.8 3.7-9.1 3.6-1.5 7.7.2 9.2 3.8 1.5 3.5-.3 7.5-3.8 9zm4.7 17.7c-3.6 1.5-7.8-.2-9.2-3.8-1.5-3.6.2-7.7 3.9-9.1 3.6-1.5 7.7.3 9.2 3.8 1.3 3.5-.4 7.6-3.9 9.1zM89.3 35.8c-3.6 1.5-7.8-.2-9.2-3.8-1.4-3.6.2-7.7 3.9-9.1 3.6-1.5 7.7.3 9.2 3.8 1.4 3.6-.3 7.7-3.9 9.1zM69.7 17.7l8.9 4.7V9.3l-8.9 2.8c-.2-.3-.5-.6-.9-.9L72.4 0H59.6l3.5 11.2c-.3.3-.6.5-.9.9l-8.8-2.8v13.1l8.8-4.7c.3.3.6.7.9.9l-5 15.4v.1h14.2v-.1l-5-15.4c.4-.2.7-.6 1-.9zM66 92.8c16.9 0 32.8 1.1 47.1 3.2 4-16.9 8.9-26.7 14-33.5l-9.6-3.4c1 4.9 1.1 7.2 0 10.2-1.5-1.4-3-4.3-4.2-8.7L108.6 76c2.8-2 5-3.2 7.5-3.3-4.4 9.4-10 11.9-13.6 11.2-4.3-.8-6.3-4.6-5.6-7.9 1-4.7 5.7-5.9 8-.5 4.3-8.7-3-11.4-7.6-8.8 7.1-7.2 7.9-13.5 2.1-21.1-8 6.1-8.1 12.3-4.5 20.8-4.7-5.4-12.1-2.5-9.5 6.2 3.4-5.2 7.9-2 7.2 3.1-.6 4.3-6.4 7.8-13.5 7.2-10.3-.9-10.9-8-11.2-13.8 2.5-.5 7.1 1.8 11 7.3L80.2 60c-4.1 4.4-8 5.3-12.3 5.4 1.4-4.4 8-11.6 8-11.6H55.5s6.4 7.2 7.9 11.6c-4.2-.1-8-1-12.3-5.4l1.4 16.4c3.9-5.5 8.5-7.7 10.9-7.3-.3 5.8-.9 12.8-11.1 13.8-7.2.6-12.9-2.9-13.5-7.2-.7-5 3.8-8.3 7.1-3.1 2.7-8.7-4.6-11.6-9.4-6.2 3.7-8.5 3.6-14.7-4.6-20.8-5.8 7.6-5 13.9 2.2 21.1-4.7-2.6-11.9.1-7.7 8.8 2.3-5.5 7.1-4.2 8.1.5.7 3.3-1.3 7.1-5.7 7.9-3.5.7-9-1.8-13.5-11.2 2.5.1 4.7 1.3 7.5 3.3l-4.7-15.4c-1.2 4.4-2.7 7.2-4.3 8.7-1.1-3-.9-5.3 0-10.2l-9.5 3.4c5 6.9 9.9 16.7 14 33.5 14.8-2.1 30.8-3.2 47.7-3.2z"/>
-      </svg>
-      <span class="govuk-header__logotype-text">GOV.UK</span>
-    </a>
-    <span class="govuk-header__service-name">Prototype Engine</span>
+    <a href="/" style="text-decoration:none;display:flex;align-items:center;gap:12px;"><span style="font-size:24px;font-weight:700;color:white;letter-spacing:-0.5px;">Transform</span><span style="width:6px;height:6px;background:#E84A0C;border-radius:50%;display:inline-block;"></span><span style="color:rgba(255,255,255,0.7);font-size:16px;font-weight:400;">Prototype Engine</span></a>
     
   </div>
 </header>
