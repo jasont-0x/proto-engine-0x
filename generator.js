@@ -9,6 +9,13 @@ function jsStr(str) {
     .trim();
 }
 
+// Ensure a prose string ends with a full stop (or other terminal punctuation)
+function ensurePeriod(str) {
+  const s = String(str || '').trim();
+  if (!s) return s;
+  return /[.!?]$/.test(s) ? s : s + '.';
+}
+
 // Escape for use inside HTML text content
 function htmlStr(str) {
   return String(str || '')
@@ -63,6 +70,7 @@ function validateSpec(spec) {
   if (!spec.startPage || typeof spec.startPage !== 'object') throw new Error('Missing startPage');
   if (!spec.startPage.heading) throw new Error('Missing startPage.heading');
   if (!spec.startPage.description) spec.startPage.description = spec.startPage.heading;
+  spec.startPage.description = ensurePeriod(spec.startPage.description);
   if (!Array.isArray(spec.startPage.whatYouNeed) || spec.startPage.whatYouNeed.length === 0) {
     spec.startPage.whatYouNeed = ['your details'];
   }
@@ -75,20 +83,21 @@ function validateSpec(spec) {
     if (!q.type || !['radio', 'text', 'textarea'].includes(q.type)) q.type = 'text';
     if (!q.question || typeof q.question !== 'string') q.question = 'Question ' + (i + 1);
     if (!q.validation || typeof q.validation !== 'string') q.validation = 'Enter an answer';
+    q.validation = ensurePeriod(q.validation);
     if (q.type === 'radio') {
       if (!Array.isArray(q.options) || q.options.length < 2) q.options = ['Yes', 'No'];
-      // Ensure options are strings
       q.options = q.options.map(function(o) { return String(o || '').trim() || 'Option'; });
     } else {
       q.options = null;
     }
     if (!q.hint || typeof q.hint !== 'string') q.hint = null;
-    // Only allow ineligible if radio type with a matching option
+    if (q.hint) q.hint = ensurePeriod(q.hint);
     if (q.type === 'radio' && q.ineligibleAnswer && typeof q.ineligibleAnswer === 'string') {
       q.ineligibleAnswer = q.ineligibleAnswer.trim();
       if (!q.ineligibleReason || typeof q.ineligibleReason !== 'string') {
         q.ineligibleReason = 'Based on your answer, you cannot use this service.';
       }
+      q.ineligibleReason = ensurePeriod(q.ineligibleReason);
     } else {
       q.ineligibleAnswer = null;
       q.ineligibleReason = null;
@@ -99,7 +108,9 @@ function validateSpec(spec) {
   if (!spec.checkAnswersHeading) spec.checkAnswersHeading = 'Check your answers before sending';
   if (!spec.confirmationHeading) spec.confirmationHeading = 'Application submitted';
   if (!spec.confirmationBody) spec.confirmationBody = 'We have received your application.';
+  spec.confirmationBody = ensurePeriod(spec.confirmationBody);
   if (!spec.confirmationTimeframe) spec.confirmationTimeframe = 'We will be in touch shortly.';
+  spec.confirmationTimeframe = ensurePeriod(spec.confirmationTimeframe);
 
   return spec;
 }
