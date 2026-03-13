@@ -198,21 +198,21 @@ app.get('/', (req, res) => {
     .generate-btn { background: #00703c; color: white; border: none; padding: 13px 22px; font-size: 19px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 10px; }
     .generate-btn:hover { background: #005a30; }
     .generate-btn:focus { outline: 3px solid #ffdd00; outline-offset: 0; }
-    .generate-btn:disabled { background: #505a5f; cursor: not-allowed; }
+    .generate-btn:disabled { background: #00703c; opacity: 0.75; cursor: wait; }
     .btn-arrow { width: 20px; height: 20px; fill: white; }
 
     /* Progress bar */
-    .progress-panel { display: none; margin-top: 30px; background: white; border: 2px solid #b1b4b6; padding: 24px; }
-    .progress-panel.visible { display: block; }
-    .progress-bar-track { background: #f3f2f1; height: 8px; margin-bottom: 20px; }
-    .progress-bar-fill { height: 8px; background: #1d70b8; width: 0%; transition: width 0.6s ease; }
+    .progress-panel { display: none; margin-top: 24px; background: white; border: 1px solid #d8dde0; border-radius: 6px; padding: 24px; }
+    .progress-panel.visible { display: block; animation: fadeIn 0.2s ease; }
+    .progress-bar-track { background: #f3f2f1; height: 4px; margin-bottom: 24px; border-radius: 2px; overflow: hidden; }
+    .progress-bar-fill { height: 4px; background: #1d70b8; width: 0%; transition: width 0.6s ease; border-radius: 2px; }
     .progress-bar-fill.complete { background: #00703c; }
-    .progress-steps { list-style: none; }
-    .progress-steps li { font-size: 16px; color: #505a5f; padding: 6px 0; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #f3f2f1; }
+    .progress-steps { list-style: none; padding: 0; }
+    .progress-steps li { font-size: 14px; color: #b1b4b6; padding: 9px 0; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f3f2f1; transition: color 0.2s; }
     .progress-steps li:last-child { border-bottom: none; }
-    .progress-steps li.active { color: #0b0c0c; font-weight: 700; }
+    .progress-steps li.active { color: #0b0c0c; font-weight: 600; }
     .progress-steps li.done { color: #00703c; }
-    .step-icon { width: 20px; text-align: center; font-size: 14px; flex-shrink: 0; }
+    .step-icon { width: 16px; text-align: center; font-size: 12px; flex-shrink: 0; }
 
     /* Done panel */
     .done-panel { display: none; margin-top: 30px; background: white; border-left: 5px solid #00703c; padding: 24px; }
@@ -239,11 +239,14 @@ app.get('/', (req, res) => {
     .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .steps { background: white; padding: 24px; border: 1px solid #b1b4b6; }
-    .steps h2 { font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 16px; }
-    .steps ol { padding-left: 20px; }
-    .steps li { font-size: 16px; color: #0b0c0c; margin-bottom: 12px; line-height: 1.5; }
-    .all-protos-link { display: inline-block; margin-top: 16px; font-size: 16px; color: #1d70b8; }
+    .steps { background: white; padding: 28px; border: 1px solid #d8dde0; border-radius: 6px; }
+    .steps h2 { font-size: 11px; font-weight: 700; color: #6f777b; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 20px; }
+    .steps ol { list-style: none; padding: 0; }
+    .steps li { font-size: 15px; color: #0b0c0c; line-height: 1.5; display: flex; gap: 14px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid #f3f2f1; }
+    .steps li:last-child { border-bottom: none; }
+    .step-num { font-size: 11px; font-weight: 700; color: #1d70b8; background: #e8f0fb; border-radius: 50%; min-width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .all-protos-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 20px; font-size: 14px; font-weight: 600; color: #1d70b8; text-decoration: none; border-top: 1px solid #f3f2f1; padding-top: 20px; width: 100%; }
+    .all-protos-link:hover { color: #003078; }
 
     footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
     @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } h1 { font-size: 32px; } }
@@ -327,12 +330,12 @@ app.get('/', (req, res) => {
     <div class="steps">
       <h2>How it works</h2>
       <ol>
-        <li>Describe your service — one line or a full brief.</li>
-        <li>Click Generate.</li>
-        <li>Wait about 3 minutes while Claude builds and deploys it.</li>
-        <li>Click the link to open your live prototype.</li>
+        <li><span class="step-num">1</span>Describe your service — one line is enough.</li>
+        <li><span class="step-num">2</span>Click Generate.</li>
+        <li><span class="step-num">3</span>Wait ~3 minutes while Claude builds and deploys it.</li>
+        <li><span class="step-num">4</span>Open your live prototype and share the link.</li>
       </ol>
-      <a href="/prototypes" class="all-protos-link">View all prototypes →</a>
+      <a href="/prototypes" class="all-protos-link">View all prototypes &rarr;</a>
     </div>
   </div>
 </main>
