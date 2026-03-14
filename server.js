@@ -236,7 +236,6 @@ app.get('/', (req, res) => {
       </ul>
     </div>
   </details>
-  <p style="margin-top:15px;font-size:15px;"><a href="/prototypes" style="color:#505a5f;">View previously generated prototypes</a></p>
 </main>
 <footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
 </body>
