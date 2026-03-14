@@ -1,5 +1,12 @@
 [
   {
+    "serviceName": "Apply for free school meals",
+    "brief": "A service for parents to apply for free school meals.",
+    "url": "https://prototype-1773499272135.onrender.com",
+    "repoUrl": "https://github.com/jasont-0x/prototype-1773499272135",
+    "createdAt": "2026-03-14T14:43:18.891Z"
+  },
+  {
     "serviceName": "Apply for a blue badge parking permit",
     "brief": "\"A service for people to apply for a blue badge parking permit. Only eligible if they have a qualifying disability or co",
     "url": "https://prototype-1773443003731.onrender.com",
