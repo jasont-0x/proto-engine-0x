@@ -1,0 +1,20 @@
+{
+  "version": "v2",
+  "title": "Branching prototypes",
+  "entries": [
+    {
+      "title": "Conditional routing added",
+      "date": "March 2026",
+      "problem": "V1 only supported linear journeys. Real services have conditional routing — different paths based on answers. Designers needed prototypes that reflect this without writing routing logic themselves.",
+      "approach": "Updated the prompt schema so radio options carry a next field pointing to any page in the journey. Updated the generator to emit if/else routing logic from that schema rather than linear redirects. Increased the token budget to 8000 to support more complex journeys.",
+      "whatChanged": [
+        "Radio options now use structured objects with text, value, and next fields",
+        "Generator emits conditional redirects based on next field values",
+        "Ineligibility can be triggered by any answer on any question",
+        "Token budget increased from 4000 to 8000",
+        "Separate v2 prompt and generator files — v1 untouched"
+      ],
+      "nextSteps": "Stability testing on complex briefs. Once confirmed stable, v3 will add task lists, interruption cards, content pages, and date inputs."
+    }
+  ]
+}

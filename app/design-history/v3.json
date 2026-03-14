@@ -1,0 +1,14 @@
+{
+  "version": "v3",
+  "title": "Additional GDS patterns",
+  "entries": [
+    {
+      "title": "Planned",
+      "date": "Planned",
+      "problem": "V2 handles branching but lacks support for more complex GDS patterns used in real services.",
+      "approach": "To be confirmed.",
+      "whatChanged": [],
+      "nextSteps": "Task list pattern, interruption cards, content pages, and date inputs. Development begins once v2 is confirmed stable."
+    }
+  ]
+}
