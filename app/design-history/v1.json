@@ -1,0 +1,20 @@
+{
+  "version": "v1",
+  "title": "Simple prototypes",
+  "entries": [
+    {
+      "title": "Initial release",
+      "date": "March 2026",
+      "problem": "Service designers needed a way to generate working GOV.UK prototypes quickly, without writing code. Existing tools required developer knowledge or produced output that did not meet GDS standards.",
+      "approach": "Built a web app that takes a plain English service brief and generates a complete GOV.UK Prototype Kit v13 project. The prototype is pushed to GitHub and deployed automatically to a live URL via Render. No terminal, no code, no configuration required.",
+      "whatChanged": [
+        "Start page with service description and what the user needs",
+        "3 to 5 question pages with server-side validation",
+        "Check your answers page with change links",
+        "Confirmation page with generated reference number",
+        "At least one ineligibility route"
+      ],
+      "nextSteps": "Testing a content review pass (beta) that applies GDS content design rules to question wording, hints, and error messages automatically."
+    }
+  ]
+}

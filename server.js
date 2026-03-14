@@ -2,6 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const fetch = require('node-fetch');
 const pdfParse = require('pdf-parse');
+const fs = require('fs');
+const path = require('path');
 const gdsPromptV1 = require('./gds-prompt-v1');
 const { buildPrototypeFiles: buildPrototypeFilesV1 } = require('./generator-v1');
 const gdsPromptV2 = require('./gds-prompt-v2');
@@ -1069,6 +1071,124 @@ app.get('/prototypes', async (req, res) => {
   <p style="margin-top:24px;font-size:15px;"><a href="/" style="color:#505a5f;">← Back</a></p>
 </main>
 <footer>GOV.UK Prototype Kit v13 &middot; Powered by Claude Sonnet</footer>
+</body>
+</html>`);
+});
+
+// ─── Design history ──────────────────────────────────────────────────────────
+
+function renderDesignHistoryEntry(entry) {
+  var whatChangedHtml = '';
+  if (entry.whatChanged && entry.whatChanged.length > 0) {
+    whatChangedHtml = '<ul style="font-size:19px;line-height:1.6;padding-left:20px;margin-top:10px;">' +
+      entry.whatChanged.map(function(item) { return '<li>' + item + '</li>'; }).join('') +
+      '</ul>';
+  } else {
+    whatChangedHtml = '<p style="font-size:19px;line-height:1.6;color:#505a5f;">None yet.</p>';
+  }
+  return '<div style="margin-bottom:50px;padding-bottom:50px;border-bottom:1px solid #b1b4b6;">' +
+    '<h2 style="font-size:36px;font-weight:700;color:#0b0c0c;margin-bottom:5px;">' + entry.title + '</h2>' +
+    '<p style="font-size:16px;color:#505a5f;margin-bottom:30px;">Last updated: ' + entry.date + '</p>' +
+    '<h3 style="font-size:24px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">Problem</h3>' +
+    '<p style="font-size:19px;line-height:1.6;margin-bottom:30px;">' + entry.problem + '</p>' +
+    '<h3 style="font-size:24px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">Our approach</h3>' +
+    '<p style="font-size:19px;line-height:1.6;margin-bottom:30px;">' + entry.approach + '</p>' +
+    '<h3 style="font-size:24px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">What changed</h3>' +
+    '<div style="margin-bottom:30px;">' + whatChangedHtml + '</div>' +
+    '<h3 style="font-size:24px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">Next steps</h3>' +
+    '<p style="font-size:19px;line-height:1.6;">' + entry.nextSteps + '</p>' +
+  '</div>';
+}
+
+app.get('/design-history', (req, res) => {
+  var v1 = JSON.parse(fs.readFileSync(path.join(__dirname, 'app', 'design-history', 'v1.json'), 'utf8'));
+  var v2 = JSON.parse(fs.readFileSync(path.join(__dirname, 'app', 'design-history', 'v2.json'), 'utf8'));
+  var v3 = JSON.parse(fs.readFileSync(path.join(__dirname, 'app', 'design-history', 'v3.json'), 'utf8'));
+  var versions = [v1, v2, v3];
+
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design history – Prototype Engine</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    .govuk-header { background: #0b0c0c; padding: 12px 0; border-bottom: 10px solid #1d70b8; }
+    .govuk-header__inner { max-width: 960px; margin: 0 auto; padding: 0 30px; display: flex; align-items: center; gap: 20px; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
+    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 10px; }
+    .lede { font-size: 20px; color: #0b0c0c; margin-bottom: 40px; line-height: 1.5; }
+    .version-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1px; background: #d8dde0; border: 1px solid #d8dde0; }
+    .version-card { background: white; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .version-card:hover { background: #f8f8f8; }
+    .version-info { flex: 1; }
+    .version-name { font-size: 24px; font-weight: 700; color: #1d70b8; text-decoration: none; }
+    .version-name:hover { text-decoration: underline; }
+    .version-date { font-size: 16px; color: #505a5f; margin-top: 4px; }
+    footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
+    @media (max-width: 768px) { h1 { font-size: 32px; } }
+  </style>
+</head>
+<body>
+<header class="govuk-header">
+  <div class="govuk-header__inner">
+    <a href="/" style="text-decoration:none;font-size:22px;font-weight:700;color:white;letter-spacing:-0.5px;">Prototype Engine</a>
+  </div>
+</header>
+<main>
+  <h1>Design history</h1>
+  <p class="lede">A record of what we built, why we built it, and what changed in each version.</p>
+  <ul class="version-list">
+` + versions.map(function(v) {
+    var latestDate = v.entries[0] ? v.entries[0].date : '';
+    return '    <li class="version-card"><div class="version-info"><a href="/design-history/' + v.version + '" class="version-name">' + v.version + ': ' + v.title + '</a><p class="version-date">' + latestDate + '</p></div></li>';
+  }).join('\n') + `
+  </ul>
+</main>
+<footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
+</body>
+</html>`);
+});
+
+app.get('/design-history/:version', (req, res) => {
+  var version = req.params.version;
+  var filePath = path.join(__dirname, 'app', 'design-history', version + '.json');
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('Not found');
+  }
+  var data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  var entriesHtml = data.entries.map(renderDesignHistoryEntry).join('');
+
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${data.version}: ${data.title} – Design history – Prototype Engine</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    .govuk-header { background: #0b0c0c; padding: 12px 0; border-bottom: 10px solid #1d70b8; }
+    .govuk-header__inner { max-width: 960px; margin: 0 auto; padding: 0 30px; display: flex; align-items: center; gap: 20px; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
+    footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
+    @media (max-width: 768px) { h1 { font-size: 32px; } }
+  </style>
+</head>
+<body>
+<header class="govuk-header">
+  <div class="govuk-header__inner">
+    <a href="/" style="text-decoration:none;font-size:22px;font-weight:700;color:white;letter-spacing:-0.5px;">Prototype Engine</a>
+  </div>
+</header>
+<main>
+  <p style="font-size:16px;margin-bottom:20px;"><a href="/design-history" style="color:#1d70b8;">&larr; Back to design history</a></p>
+  <h1 style="font-size:48px;font-weight:700;color:#0b0c0c;line-height:1.1;margin-bottom:40px;">${data.version}: ${data.title}</h1>
+  ${entriesHtml}
+</main>
+<footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
 </body>
 </html>`);
 });
