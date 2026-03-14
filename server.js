@@ -349,6 +349,16 @@ app.get('/v1', (req, res) => {
           <p class="hint">A live service or document to reference.</p>
           <input type="url" id="url" name="url" placeholder="https://www.gov.uk/example">
         </div>
+        <div style="margin-bottom: 24px;">
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <input type="checkbox" id="contentReview" name="contentReview" value="true" style="width: auto; min-width: 24px; height: 24px; margin: 0; cursor: pointer;">
+            <div>
+              <label for="contentReview" style="display: inline; font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 0; cursor: pointer;">Apply content review</label>
+              <span style="display: inline-block; margin-left: 8px; padding: 2px 8px; background: #1d70b8; color: white; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; line-height: 1.6;">BETA</span>
+              <p class="hint" style="margin-top: 6px; margin-bottom: 0;">Improves question wording, hints, and error messages using GDS content design rules.</p>
+            </div>
+          </div>
+        </div>
         <button type="submit" class="generate-btn" id="generateBtn">
           <span id="btnText">Generate prototype</span>
           <svg class="btn-arrow" id="btnArrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
