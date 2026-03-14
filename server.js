@@ -224,6 +224,13 @@ app.get('/', (req, res) => {
     </li>
   </ul>
   <p style="margin-top:24px;font-size:15px;"><a href="/prototypes" style="color:#505a5f;">View previously generated prototypes</a></p>
+  <p class="govuk-body" style="font-size:16px;color:#0b0c0c;margin-top:40px;line-height:1.5;">Each version adds new capabilities to the prototype generator. We release one version at a time, test it for stability, then build the next. This means the stable version is always available while new features are tested.</p>
+  <h2 class="govuk-heading-m" style="font-size:24px;font-weight:700;color:#0b0c0c;margin-top:30px;margin-bottom:15px;">Roadmap</h2>
+  <ul style="font-size:16px;color:#0b0c0c;line-height:1.8;padding-left:20px;">
+    <li>v1 — Simple linear prototypes (stable)</li>
+    <li>v2 — Branching and conditional routing (beta)</li>
+    <li>v3 — Additional GDS patterns: task lists, interruption cards, content pages (planned)</li>
+  </ul>
 </main>
 <footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
 </body>
