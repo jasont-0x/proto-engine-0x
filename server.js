@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const gdsPromptV1 = require('./gds-prompt-v1');
 const { buildPrototypeFiles: buildPrototypeFilesV1 } = require('./generator-v1');
+const contentReviewPrompt = require('./content-review-prompt');
 const gdsPromptV2 = require('./gds-prompt-v2');
 const { buildPrototypeFiles: buildPrototypeFilesV2 } = require('./generator-v2');
 
@@ -583,6 +584,35 @@ app.post('/generate-v1', upload.single('pdf'), async (req, res) => {
 
     if (!spec.serviceName || !spec.questions || spec.questions.length < 1) {
       throw new Error('Prototype spec incomplete. Try again.');
+    }
+
+    // Optional content review pass
+    if (req.body.contentReview === 'true') {
+      try {
+        const reviewResponse = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 2000,
+            system: contentReviewPrompt,
+            messages: [{ role: 'user', content: JSON.stringify(spec) + '\n\nReturn only the improved JSON object. No explanation. No markdown.' }]
+          })
+        });
+
+        if (reviewResponse.ok) {
+          const reviewData = await reviewResponse.json();
+          const reviewText = reviewData.content[0].text.trim();
+          const cleanReview = reviewText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+          spec = JSON.parse(cleanReview);
+        }
+      } catch (e) {
+        console.error('Content review pass failed, continuing with original spec:', e.message);
+      }
     }
 
     // Step 2: Build and push to GitHub
