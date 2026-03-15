@@ -354,18 +354,11 @@ app.get('/v1', (req, res) => {
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="q1">Who are the users and what are their needs?</label>
-          <p class="hint">Describe who will use this service and what they are trying to achieve. Include anything about their situation that affects how you write for them.</p>
-          <textarea id="q1" name="q1" rows="4" placeholder="Parents applying for free school meals for their child. They may be in financial difficulty and anxious about the process. They need to know quickly whether they are eligible."></textarea>
+          <textarea id="q1" name="q1" rows="4" placeholder="Parents applying for free school meals for their child. They may be anxious and need to know quickly if they are eligible."></textarea>
         </div>
         <div>
-          <label for="q2">What kind of content do we need to write, and what language should we use?</label>
-          <p class="hint">Describe the tone, any specific terminology to use or avoid, and the key things the content must communicate.</p>
-          <textarea id="q2" name="q2" rows="4" placeholder="Plain, warm and direct. Avoid anything that feels bureaucratic or judgmental. Use 'you' and 'your child' throughout."></textarea>
-        </div>
-        <div>
-          <label for="q3">What could block the user, and how should we resolve it?</label>
-          <p class="hint">What would stop someone completing this service? What should happen if they are ineligible or get stuck?</p>
-          <textarea id="q3" name="q3" rows="4" placeholder="Ineligible if household income is above the threshold. If ineligible, signpost to other support. If they cannot complete online, give a phone number."></textarea>
+          <label for="q2">What does the service need to do, and what content principles should we apply?</label>
+          <textarea id="q2" name="q2" rows="4" placeholder="Help parents apply quickly and without jargon. Plain, warm language. If ineligible, signpost to other support rather than leaving them stuck."></textarea>
         </div>
         <div>
           <label for="pdf">Upload a PDF (optional)</label>
@@ -583,9 +576,9 @@ app.get('/v1', (req, res) => {
 
 app.post('/generate-v1', upload.single('pdf'), async (req, res) => {
   try {
-    const { q1, q2, q3, url } = req.body;
-    const brief = [q1, q2, q3].filter(Boolean).map((s, i) => {
-      const labels = ['Users and needs', 'Content and language', 'Blockers and resolutions'];
+    const { q1, q2, url } = req.body;
+    const brief = [q1, q2].filter(Boolean).map((s, i) => {
+      const labels = ['Users and needs', 'Service and content principles'];
       return labels[i] + ': ' + s.trim();
     }).join('\n\n');
     const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -848,18 +841,11 @@ app.get('/v2', (req, res) => {
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="q1">Who are the users and what are their needs?</label>
-          <p class="hint">Describe who will use this service and what they are trying to achieve. Include anything about their situation that affects how you write for them.</p>
-          <textarea id="q1" name="q1" rows="4" placeholder="Parents applying for free school meals for their child. They may be in financial difficulty and anxious about the process. They need to know quickly whether they are eligible."></textarea>
+          <textarea id="q1" name="q1" rows="4" placeholder="Parents applying for free school meals for their child. They may be anxious and need to know quickly if they are eligible."></textarea>
         </div>
         <div>
-          <label for="q2">What kind of content do we need to write, and what language should we use?</label>
-          <p class="hint">Describe the tone, any specific terminology to use or avoid, and the key things the content must communicate.</p>
-          <textarea id="q2" name="q2" rows="4" placeholder="Plain, warm and direct. Avoid anything that feels bureaucratic or judgmental. Use 'you' and 'your child' throughout."></textarea>
-        </div>
-        <div>
-          <label for="q3">What could block the user, and how should we resolve it?</label>
-          <p class="hint">What would stop someone completing this service? What should happen if they are ineligible or get stuck?</p>
-          <textarea id="q3" name="q3" rows="4" placeholder="Ineligible if household income is above the threshold. If ineligible, signpost to other support. If they cannot complete online, give a phone number."></textarea>
+          <label for="q2">What does the service need to do, and what content principles should we apply?</label>
+          <textarea id="q2" name="q2" rows="4" placeholder="Help parents apply quickly and without jargon. Plain, warm language. If ineligible, signpost to other support rather than leaving them stuck."></textarea>
         </div>
         <div>
           <label for="pdf">Upload a PDF (optional)</label>
@@ -1067,9 +1053,9 @@ app.get('/v2', (req, res) => {
 
 app.post('/generate-v2', upload.single('pdf'), async (req, res) => {
   try {
-    const { q1, q2, q3, url } = req.body;
-    const brief = [q1, q2, q3].filter(Boolean).map((s, i) => {
-      const labels = ['Users and needs', 'Content and language', 'Blockers and resolutions'];
+    const { q1, q2, url } = req.body;
+    const brief = [q1, q2].filter(Boolean).map((s, i) => {
+      const labels = ['Users and needs', 'Service and content principles'];
       return labels[i] + ': ' + s.trim();
     }).join('\n\n');
     const apiKey = process.env.ANTHROPIC_API_KEY;
