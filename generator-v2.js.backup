@@ -513,11 +513,7 @@ function generateAppConfig(spec) {
     serviceName: spec.serviceName,
     serviceUrl: '/start',
     useAuth: false,
-    plugins: {
-      'govuk-frontend': {
-        rebrand: true
-      }
-    }
+    rebrand: true
   }, null, 2);
 }
 

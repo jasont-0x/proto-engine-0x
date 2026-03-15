@@ -85,34 +85,21 @@ function validateSpec(spec) {
     if (!q.validation || typeof q.validation !== 'string') q.validation = 'Enter an answer';
     q.validation = ensurePeriod(q.validation);
     if (q.type === 'radio') {
-      if (!Array.isArray(q.options) || q.options.length < 2) {
-        q.options = [
-          { text: 'Yes', value: 'yes', next: i < spec.questions.length - 1 ? spec.questions[i + 1].id : 'check-answers' },
-          { text: 'No', value: 'no', next: i < spec.questions.length - 1 ? spec.questions[i + 1].id : 'check-answers' }
-        ];
-      }
-      q.options = q.options.map(function(o) {
-        if (typeof o === 'string') {
-          return { text: o.trim() || 'Option', value: slug(o), next: i < spec.questions.length - 1 ? spec.questions[i + 1].id : 'check-answers' };
-        }
-        return {
-          text: String(o.text || '').trim() || 'Option',
-          value: String(o.value || '').trim() || slug(o.text || 'option'),
-          next: String(o.next || '').trim() || (i < spec.questions.length - 1 ? spec.questions[i + 1].id : 'check-answers')
-        };
-      });
+      if (!Array.isArray(q.options) || q.options.length < 2) q.options = ['Yes', 'No'];
+      q.options = q.options.map(function(o) { return String(o || '').trim() || 'Option'; });
     } else {
       q.options = null;
     }
     if (!q.hint || typeof q.hint !== 'string') q.hint = null;
     if (q.hint) q.hint = ensurePeriod(q.hint);
-    var hasIneligibleOption = q.type === 'radio' && Array.isArray(q.options) && q.options.some(function(o) { return o.next === 'ineligible'; });
-    if (hasIneligibleOption) {
+    if (q.type === 'radio' && q.ineligibleAnswer && typeof q.ineligibleAnswer === 'string') {
+      q.ineligibleAnswer = q.ineligibleAnswer.trim();
       if (!q.ineligibleReason || typeof q.ineligibleReason !== 'string') {
         q.ineligibleReason = 'Based on your answer, you cannot use this service.';
       }
       q.ineligibleReason = ensurePeriod(q.ineligibleReason);
     } else {
+      q.ineligibleAnswer = null;
       q.ineligibleReason = null;
     }
     return q;
@@ -154,11 +141,8 @@ function generateRoutesJs(spec) {
   spec.questions.forEach(function(q, i) {
     const nextPage = i < spec.questions.length - 1 ? spec.questions[i + 1].id : 'check-answers';
     const validationMsg = jsStr(q.validation);
-    var hasIneligible = false;
-
-    if (q.type === 'radio' && Array.isArray(q.options)) {
-      hasIneligible = q.options.some(function(opt) { return opt.next === 'ineligible'; });
-    }
+    // ineligible answer value is the slug of the option text
+    const ineligibleValue = q.ineligibleAnswer ? slug(q.ineligibleAnswer) : null;
 
     lines.push("router.get('/" + q.id + "', function (req, res) {");
     lines.push("  res.render('" + q.id + "')");
@@ -171,34 +155,16 @@ function generateRoutesJs(spec) {
     lines.push("    res.locals.errors = { '" + q.id + "': '" + validationMsg + "' }");
     lines.push("    return res.render('" + q.id + "')");
     lines.push('  }');
-
-    if (q.type === 'radio' && Array.isArray(q.options)) {
-      // Branching: check each option's next field
-      q.options.forEach(function(opt, oi) {
-        var target;
-        if (opt.next === 'ineligible') {
-          target = '/ineligible-' + q.id;
-        } else if (opt.next === 'check-answers') {
-          target = '/check-answers';
-        } else {
-          target = '/' + opt.next;
-        }
-        var condition = oi === 0 ? '  if' : '  } else if';
-        lines.push(condition + " (answer === '" + jsStr(opt.value) + "') {");
-        lines.push("    return res.redirect('" + target + "')");
-      });
+    if (ineligibleValue) {
+      lines.push("  if (answer === '" + ineligibleValue + "') {");
+      lines.push("    return res.redirect('/ineligible-" + q.id + "')");
       lines.push('  }');
-      // Fallback: next question in sequence
-      lines.push("  res.redirect('/" + nextPage + "')");
-    } else {
-      // Text/textarea: linear redirect
-      lines.push("  res.redirect('/" + nextPage + "')");
     }
-
+    lines.push("  res.redirect('/" + nextPage + "')");
     lines.push('})');
     lines.push('');
 
-    if (hasIneligible) {
+    if (ineligibleValue) {
       lines.push("router.get('/ineligible-" + q.id + "', function (req, res) {");
       lines.push("  res.render('ineligible-" + q.id + "')");
       lines.push('})');
@@ -292,7 +258,7 @@ function generateQuestionPage(q) {
   if (q.type === 'radio') {
     const items = q.options
       .map(function(opt) {
-        return '        { value: "' + njkAttr(opt.value) + '", text: "' + njkAttr(opt.text) + '" }';
+        return '        { value: "' + njkAttr(slug(opt)) + '", text: "' + njkAttr(opt) + '" }';
       })
       .join(',\n');
 
@@ -501,7 +467,7 @@ function generatePackageJson(spec) {
     engines: { node: '22.x' },
     dependencies: {
       'govuk-prototype-kit': '^13.16.2',
-      'govuk-frontend': '^5.10.0'
+      'govuk-frontend': '^5.2.0'
     }
   }, null, 2);
 }
@@ -512,12 +478,7 @@ function generateAppConfig(spec) {
   return JSON.stringify({
     serviceName: spec.serviceName,
     serviceUrl: '/start',
-    useAuth: false,
-    plugins: {
-      'govuk-frontend': {
-        rebrand: true
-      }
-    }
+    useAuth: false
   }, null, 2);
 }
 
@@ -535,8 +496,7 @@ function buildPrototypeFiles(rawSpec) {
 
   spec.questions.forEach(function(q) {
     files['app/views/' + q.id + '.html'] = generateQuestionPage(q);
-    var hasIneligible = q.type === 'radio' && Array.isArray(q.options) && q.options.some(function(o) { return o.next === 'ineligible'; });
-    if (hasIneligible) {
+    if (q.ineligibleAnswer) {
       files['app/views/ineligible-' + q.id + '.html'] = generateIneligiblePage(q);
     }
   });
