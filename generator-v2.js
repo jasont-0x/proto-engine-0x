@@ -501,7 +501,7 @@ function generatePackageJson(spec) {
     engines: { node: '22.x' },
     dependencies: {
       'govuk-prototype-kit': '^13.16.2',
-      'govuk-frontend': '^5.2.0'
+      'govuk-frontend': '^5.10.0'
     }
   }, null, 2);
 }
@@ -512,7 +512,8 @@ function generateAppConfig(spec) {
   return JSON.stringify({
     serviceName: spec.serviceName,
     serviceUrl: '/start',
-    useAuth: false
+    useAuth: false,
+    rebrand: true
   }, null, 2);
 }
 

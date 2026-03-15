@@ -15,6 +15,19 @@
         "At least one ineligibility route"
       ],
       "nextSteps": "Testing a content review pass (beta) that applies GDS content design rules to question wording, hints, and error messages automatically."
+    },
+    {
+      "title": "Content review pass added (experimental)",
+      "date": "March 2026",
+      "problem": "Generated prototypes had inconsistent question wording, vague error messages, and hints that did not follow GDS content design standards.",
+      "approach": "Added an optional second Claude API call after spec generation that rewrites content fields only — question labels, hints, error messages, start page and confirmation content — using a focused set of GDS content design rules. The structural spec is unchanged. If the call fails, generation continues with the original content.",
+      "whatChanged": [
+        "New content-review-prompt.js with GDS content rules",
+        "Optional second Claude call in POST /generate-v1",
+        "Experimental checkbox on v1 page to enable the feature",
+        "Fallback to original spec if content review call fails"
+      ],
+      "nextSteps": "A/B test content review on vs off across a range of briefs. If content quality is consistently better, enable by default in a future release."
     }
   ]
 }
