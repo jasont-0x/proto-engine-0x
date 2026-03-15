@@ -198,11 +198,27 @@ app.get('/', (req, res) => {
     footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
     @media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
+<style>
+  @keyframes pe-logo-in {
+    0% { opacity:0; transform:scale(0.7) rotate(-8deg); }
+    60% { transform:scale(1.08) rotate(2deg); }
+    100% { opacity:1; transform:scale(1) rotate(0deg); }
+  }
+  .pe-logo { animation: pe-logo-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+</style>
 </head>
 <body>
-<header style="background:#e0531a;padding:10px 0;border-bottom:none;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
-    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+      <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="11" height="11" fill="white"/>
+        <rect x="13" y="0" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="0" y="13" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="13" y="13" width="11" height="11" fill="white"/>
+      </svg>
+      <span style="color:white;font-size:15px;font-weight:700;font-family:arial,sans-serif;letter-spacing:-0.3px;">Prototype Engine</span>
+    </a>
   </div>
 </header>
 <main>
@@ -317,9 +333,17 @@ app.get('/v1', (req, res) => {
   </style>
 </head>
 <body>
-<header style="background:#e0531a;padding:10px 0;border-bottom:none;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
-    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+      <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="11" height="11" fill="white"/>
+        <rect x="13" y="0" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="0" y="13" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="13" y="13" width="11" height="11" fill="white"/>
+      </svg>
+      <span style="color:white;font-size:15px;font-weight:700;font-family:arial,sans-serif;letter-spacing:-0.3px;">Prototype Engine</span>
+    </a>
   </div>
 </header>
 <main>
@@ -789,9 +813,17 @@ app.get('/v2', (req, res) => {
   </style>
 </head>
 <body>
-<header style="background:#e0531a;padding:10px 0;border-bottom:none;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
-    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+      <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="11" height="11" fill="white"/>
+        <rect x="13" y="0" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="0" y="13" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="13" y="13" width="11" height="11" fill="white"/>
+      </svg>
+      <span style="color:white;font-size:15px;font-weight:700;font-family:arial,sans-serif;letter-spacing:-0.3px;">Prototype Engine</span>
+    </a>
   </div>
 </header>
 <main>
@@ -1202,9 +1234,17 @@ app.get('/prototypes', async (req, res) => {
   </style>
 </head>
 <body>
-<header style="background:#e0531a;padding:10px 0;border-bottom:none;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
-    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+      <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="11" height="11" fill="white"/>
+        <rect x="13" y="0" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="0" y="13" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="13" y="13" width="11" height="11" fill="white"/>
+      </svg>
+      <span style="color:white;font-size:15px;font-weight:700;font-family:arial,sans-serif;letter-spacing:-0.3px;">Prototype Engine</span>
+    </a>
   </div>
 </header>
 <main>
@@ -1295,9 +1335,17 @@ app.get('/design-history', (req, res) => {
   </style>
 </head>
 <body>
-<header style="background:#e0531a;padding:10px 0;border-bottom:none;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
-    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+      <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="11" height="11" fill="white"/>
+        <rect x="13" y="0" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="0" y="13" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="13" y="13" width="11" height="11" fill="white"/>
+      </svg>
+      <span style="color:white;font-size:15px;font-weight:700;font-family:arial,sans-serif;letter-spacing:-0.3px;">Prototype Engine</span>
+    </a>
   </div>
 </header>
 <main>
@@ -1339,9 +1387,17 @@ app.get('/design-history/:version', (req, res) => {
   </style>
 </head>
 <body>
-<header style="background:#e0531a;padding:10px 0;border-bottom:none;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
-    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+      <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="11" height="11" fill="white"/>
+        <rect x="13" y="0" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="0" y="13" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="13" y="13" width="11" height="11" fill="white"/>
+      </svg>
+      <span style="color:white;font-size:15px;font-weight:700;font-family:arial,sans-serif;letter-spacing:-0.3px;">Prototype Engine</span>
+    </a>
   </div>
 </header>
 <main>
