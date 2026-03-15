@@ -1152,6 +1152,13 @@ app.get('/prototypes', async (req, res) => {
   const githubUsername = process.env.GITHUB_USERNAME;
   const log = await getLog(githubUsername, githubToken);
 
+  const pageSize = 10;
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const totalPages = Math.max(1, Math.ceil(log.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const start = (currentPage - 1) * pageSize;
+  const pageLog = log.slice(start, start + pageSize);
+
   function timeAgo(iso) {
     const diff = Date.now() - new Date(iso).getTime();
     const mins = Math.floor(diff / 60000);
@@ -1162,16 +1169,6 @@ app.get('/prototypes', async (req, res) => {
     if (hours < 24) return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
     return days + ' day' + (days > 1 ? 's' : '') + ' ago';
   }
-
-  const rows = log.length === 0
-    ? '<tr><td colspan="3" style="padding:30px 0;color:#505a5f;font-size:16px;">No prototypes generated yet.</td></tr>'
-    : log.map(function(entry) {
-        return '<tr>' +
-          '<td style="font-size:19px;font-weight:700;color:#0b0c0c;">' + entry.serviceName + '</td>' +
-          '<td style="white-space:nowrap;color:#505a5f;font-size:16px;padding-right:24px;">' + timeAgo(entry.createdAt) + '</td>' +
-          '<td style="white-space:nowrap;"><a href="' + entry.url + '" target="_blank" rel="noopener" style="font-size:16px;color:#1d70b8;font-weight:700;">Open →</a></td>' +
-          '</tr>';
-      }).join('');
 
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -1215,7 +1212,7 @@ app.get('/prototypes', async (req, res) => {
   </div>
   ${log.length === 0
     ? '<div class="empty-state">No prototypes generated yet.</div>'
-    : '<div class="proto-list">' + log.map(function(entry) {
+    : '<div class="proto-list">' + pageLog.map(function(entry) {
         return '<div class="proto-card">' +
           '<div class="proto-card-left">' +
             '<div class="proto-name">' + entry.serviceName + '</div>' +
@@ -1227,6 +1224,11 @@ app.get('/prototypes', async (req, res) => {
         '</div>';
       }).join('') + '</div>'
   }
+  ${totalPages > 1 ? '<nav style="display:flex;align-items:center;justify-content:space-between;margin-top:24px;font-size:16px;font-family:\'GDS Transport\',arial,sans-serif;">' +
+    (currentPage > 1 ? '<a href="/prototypes?page=' + (currentPage - 1) + '" style="color:#1d70b8;font-weight:700;text-decoration:none;">&larr; Newer</a>' : '<span></span>') +
+    '<span style="color:#505a5f;">Page ' + currentPage + ' of ' + totalPages + '</span>' +
+    (currentPage < totalPages ? '<a href="/prototypes?page=' + (currentPage + 1) + '" style="color:#1d70b8;font-weight:700;text-decoration:none;">Older &rarr;</a>' : '<span></span>') +
+    '</nav>' : ''}
   <p style="margin-top:24px;font-size:15px;"><a href="/" style="color:#505a5f;">← Back</a></p>
 </main>
 <footer>GOV.UK Prototype Kit v13 &middot; Powered by Claude Sonnet</footer>
