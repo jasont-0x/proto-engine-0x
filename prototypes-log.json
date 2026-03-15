@@ -1,5 +1,12 @@
 [
   {
+    "serviceName": "Get a film teddy bear for your baby",
+    "brief": "Users and needs: A baby who has an exquisite film taste\n\nService goals: The service needs to deliver custom teddy bears ",
+    "url": "https://prototype-1773607620502.onrender.com",
+    "repoUrl": "https://github.com/jasont-0x/prototype-1773607620502",
+    "createdAt": "2026-03-15T20:49:59.710Z"
+  },
+  {
     "serviceName": "Schedule your bottle feeds",
     "brief": "Users and needs: A super intelligent baby\n\nService goals: Create a service for a baby with a Neuralink implant who wants",
     "url": "https://prototype-1773576100040.onrender.com",
