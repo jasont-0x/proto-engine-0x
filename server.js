@@ -202,6 +202,7 @@ app.get('/', (req, res) => {
 <body>
 <header style="background:#e0531a;padding:10px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
   </div>
 </header>
 <main>
@@ -318,6 +319,7 @@ app.get('/v1', (req, res) => {
 <body>
 <header style="background:#e0531a;padding:10px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
   </div>
 </header>
 <main>
@@ -789,6 +791,7 @@ app.get('/v2', (req, res) => {
 <body>
 <header style="background:#e0531a;padding:10px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
   </div>
 </header>
 <main>
@@ -1201,6 +1204,7 @@ app.get('/prototypes', async (req, res) => {
 <body>
 <header style="background:#e0531a;padding:10px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
   </div>
 </header>
 <main>
@@ -1293,6 +1297,7 @@ app.get('/design-history', (req, res) => {
 <body>
 <header style="background:#e0531a;padding:10px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
   </div>
 </header>
 <main>
@@ -1336,6 +1341,7 @@ app.get('/design-history/:version', (req, res) => {
 <body>
 <header style="background:#e0531a;padding:10px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:white;color:#e0531a;font-size:13px;font-weight:700;font-family:arial,sans-serif;letter-spacing:1px;">PE</a>
   </div>
 </header>
 <main>
