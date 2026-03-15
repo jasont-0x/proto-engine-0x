@@ -328,7 +328,7 @@ app.get('/v1', (req, res) => {
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="brief">Describe your service</label>
-          <p class="hint">What does the user need to do, and why?</p>
+          <p class="hint">Describe the service, its users, and key eligibility rules. The more detail you give, the better the prototype.</p>
           <textarea id="brief" name="brief" rows="5" placeholder="Example: A service for parents to apply for free school meals for their child."></textarea>
         </div>
         <div>
@@ -799,7 +799,7 @@ app.get('/v2', (req, res) => {
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="brief">Describe your service</label>
-          <p class="hint">What does the user need to do, and why?</p>
+          <p class="hint">Describe the service, its users, and key eligibility rules. The more detail you give, the better the prototype.</p>
           <textarea id="brief" name="brief" rows="5" placeholder="Example: A service for parents to apply for free school meals for their child."></textarea>
         </div>
         <div>
