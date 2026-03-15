@@ -478,7 +478,12 @@ function generateAppConfig(spec) {
   return JSON.stringify({
     serviceName: spec.serviceName,
     serviceUrl: '/start',
-    useAuth: false
+    useAuth: false,
+    plugins: {
+      'govuk-frontend': {
+        rebrand: true
+      }
+    }
   }, null, 2);
 }
 
