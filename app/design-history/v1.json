@@ -28,6 +28,23 @@
         "Fallback to original spec if content review call fails"
       ],
       "nextSteps": "A/B test content review on vs off across a range of briefs. If content quality is consistently better, enable by default in a future release."
+    },
+    {
+      "title": "Content quality overhaul",
+      "date": "March 2026",
+      "problem": "Generated prototypes had inconsistent content quality. Sentences ran too long, error messages were generic, confirmation pages were vague, and ineligibility routes left users at dead ends with no alternative.",
+      "approach": "Rewrote the v1 generation prompt with specific, enforceable content rules derived from GDS content design principles. Rules cover language, question wording, hint text, error messages, start pages, confirmation pages, ineligibility pages, and sensitive services.",
+      "whatChanged": [
+        "Sentence length capped at 15 words with split rule",
+        "Nominalisation ban with specific examples",
+        "Error messages must state what went wrong and how to fix it specifically",
+        "Confirmation pages must name specific next steps not vague holding statements",
+        "Ineligibility pages must offer a concrete alternative not a dead end",
+        "Hint text rules: only write if it adds something the label does not",
+        "Sensitive service language rules added",
+        "Question ordering rule: eligibility first, detail second"
+      ],
+      "nextSteps": "Test against 3 briefs and compare output quality to previous version. Apply same rules to gds-prompt-v2.js once confirmed stable."
     }
   ]
 }
