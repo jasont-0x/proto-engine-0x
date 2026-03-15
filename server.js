@@ -353,9 +353,19 @@ app.get('/v1', (req, res) => {
       <p class="lede">Describe your service and Claude will build a working GOV.UK prototype — no code required.</p>
       <form id="generateForm" enctype="multipart/form-data">
         <div>
-          <label for="brief">Describe your service</label>
-          <p class="hint">Describe the service, its users, and key eligibility rules. The more detail you give, the better the prototype.</p>
-          <textarea id="brief" name="brief" rows="5" placeholder="Example: A service for parents to apply for free school meals for their child."></textarea>
+          <label for="q1">Who are the users and what are their needs?</label>
+          <p class="hint">Describe who will use this service and what they are trying to achieve. Include anything about their situation that affects how you write for them.</p>
+          <textarea id="q1" name="q1" rows="4" placeholder="Parents applying for free school meals for their child. They may be in financial difficulty and anxious about the process. They need to know quickly whether they are eligible."></textarea>
+        </div>
+        <div>
+          <label for="q2">What kind of content do we need to write, and what language should we use?</label>
+          <p class="hint">Describe the tone, any specific terminology to use or avoid, and the key things the content must communicate.</p>
+          <textarea id="q2" name="q2" rows="4" placeholder="Plain, warm and direct. Avoid anything that feels bureaucratic or judgmental. Use 'you' and 'your child' throughout."></textarea>
+        </div>
+        <div>
+          <label for="q3">What could block the user, and how should we resolve it?</label>
+          <p class="hint">What would stop someone completing this service? What should happen if they are ineligible or get stuck?</p>
+          <textarea id="q3" name="q3" rows="4" placeholder="Ineligible if household income is above the threshold. If ineligible, signpost to other support. If they cannot complete online, give a phone number."></textarea>
         </div>
         <div>
           <label for="pdf">Upload a PDF (optional)</label>
@@ -573,7 +583,11 @@ app.get('/v1', (req, res) => {
 
 app.post('/generate-v1', upload.single('pdf'), async (req, res) => {
   try {
-    const { brief, url } = req.body;
+    const { q1, q2, q3, url } = req.body;
+    const brief = [q1, q2, q3].filter(Boolean).map((s, i) => {
+      const labels = ['Users and needs', 'Content and language', 'Blockers and resolutions'];
+      return labels[i] + ': ' + s.trim();
+    }).join('\n\n');
     const apiKey = process.env.ANTHROPIC_API_KEY;
     const githubToken = process.env.GITHUB_TOKEN;
     const renderApiKey = process.env.RENDER_API_KEY;
@@ -585,7 +599,7 @@ app.post('/generate-v1', upload.single('pdf'), async (req, res) => {
     if (!renderApiKey) return res.status(500).json({ error: 'RENDER_API_KEY not set' });
     if (!renderOwnerId) return res.status(500).json({ error: 'RENDER_OWNER_ID not set' });
     if (!githubUsername) return res.status(500).json({ error: 'GITHUB_USERNAME not set' });
-    if (!brief || brief.trim().length < 5) return res.status(400).json({ error: 'Please describe your service' });
+    if (!q1 || q1.trim().length < 5) return res.status(400).json({ error: 'Tell us who the users are and what they need' });
 
     // Step 1: PDF summarisation
     let pdfSummary = null;
@@ -833,9 +847,19 @@ app.get('/v2', (req, res) => {
       <p class="lede">Describe your service and Claude will build a working GOV.UK prototype with conditional branching — no code required.</p>
       <form id="generateForm" enctype="multipart/form-data">
         <div>
-          <label for="brief">Describe your service</label>
-          <p class="hint">Describe the service, its users, and key eligibility rules. The more detail you give, the better the prototype.</p>
-          <textarea id="brief" name="brief" rows="5" placeholder="Example: A service for parents to apply for free school meals for their child."></textarea>
+          <label for="q1">Who are the users and what are their needs?</label>
+          <p class="hint">Describe who will use this service and what they are trying to achieve. Include anything about their situation that affects how you write for them.</p>
+          <textarea id="q1" name="q1" rows="4" placeholder="Parents applying for free school meals for their child. They may be in financial difficulty and anxious about the process. They need to know quickly whether they are eligible."></textarea>
+        </div>
+        <div>
+          <label for="q2">What kind of content do we need to write, and what language should we use?</label>
+          <p class="hint">Describe the tone, any specific terminology to use or avoid, and the key things the content must communicate.</p>
+          <textarea id="q2" name="q2" rows="4" placeholder="Plain, warm and direct. Avoid anything that feels bureaucratic or judgmental. Use 'you' and 'your child' throughout."></textarea>
+        </div>
+        <div>
+          <label for="q3">What could block the user, and how should we resolve it?</label>
+          <p class="hint">What would stop someone completing this service? What should happen if they are ineligible or get stuck?</p>
+          <textarea id="q3" name="q3" rows="4" placeholder="Ineligible if household income is above the threshold. If ineligible, signpost to other support. If they cannot complete online, give a phone number."></textarea>
         </div>
         <div>
           <label for="pdf">Upload a PDF (optional)</label>
@@ -1043,7 +1067,11 @@ app.get('/v2', (req, res) => {
 
 app.post('/generate-v2', upload.single('pdf'), async (req, res) => {
   try {
-    const { brief, url } = req.body;
+    const { q1, q2, q3, url } = req.body;
+    const brief = [q1, q2, q3].filter(Boolean).map((s, i) => {
+      const labels = ['Users and needs', 'Content and language', 'Blockers and resolutions'];
+      return labels[i] + ': ' + s.trim();
+    }).join('\n\n');
     const apiKey = process.env.ANTHROPIC_API_KEY;
     const githubToken = process.env.GITHUB_TOKEN;
     const renderApiKey = process.env.RENDER_API_KEY;
@@ -1055,7 +1083,7 @@ app.post('/generate-v2', upload.single('pdf'), async (req, res) => {
     if (!renderApiKey) return res.status(500).json({ error: 'RENDER_API_KEY not set' });
     if (!renderOwnerId) return res.status(500).json({ error: 'RENDER_OWNER_ID not set' });
     if (!githubUsername) return res.status(500).json({ error: 'GITHUB_USERNAME not set' });
-    if (!brief || brief.trim().length < 5) return res.status(400).json({ error: 'Please describe your service' });
+    if (!q1 || q1.trim().length < 5) return res.status(400).json({ error: 'Tell us who the users are and what they need' });
 
     // Step 1: PDF summarisation
     let pdfSummary = null;

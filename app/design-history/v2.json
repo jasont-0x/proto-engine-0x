@@ -30,6 +30,19 @@
         "PDF improvements applied to both v1 and v2"
       ],
       "nextSteps": "Test with real policy PDFs of varying lengths to confirm summary quality and content improvement in generated prototypes."
+    },
+    {
+      "title": "Structured intake form",
+      "date": "March 2026",
+      "problem": "A single free-text brief produced generic output because Claude had too little context to make good content decisions.",
+      "approach": "Replaced the single textarea with three structured fields that mirror how a content designer thinks: users and needs, content and language, blockers and resolutions. The three fields are combined into a structured brief before being sent to Claude.",
+      "whatChanged": [
+        "Single brief textarea replaced with three structured fields on v1 and v2",
+        "Fields: users and needs, content and language, blockers and resolutions",
+        "Server combines fields into labelled brief before Claude call",
+        "Validation updated to require the first field at minimum"
+      ],
+      "nextSteps": "Test across a range of briefs to confirm richer input produces better prototype content."
     }
   ]
 }
