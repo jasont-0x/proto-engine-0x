@@ -45,6 +45,22 @@
         "Question ordering rule: eligibility first, detail second"
       ],
       "nextSteps": "Test against 3 briefs and compare output quality to previous version. Apply same rules to gds-prompt-v2.js once confirmed stable."
+    },
+    {
+      "title": "Content quality overhaul — split prompt architecture",
+      "date": "March 2026",
+      "problem": "A single long prompt caused Claude to deprioritise content rules in favour of structural generation. Content quality was inconsistent — long sentences, generic errors, vague confirmations, dead-end ineligibility pages.",
+      "approach": "Split responsibilities across two prompts. The main generation prompt handles service design structure only — short and focused. The content review prompt handles all language and content rules using XML-tagged sections, which Claude navigates more reliably than flat bullet lists.",
+      "whatChanged": [
+        "gds-prompt-v1.js reduced to structural and service design rules only",
+        "content-review-prompt.js rewritten with XML-tagged rule sections",
+        "Language rules: sentence length, nominalisation ban, vocabulary level",
+        "Error rules: specific failure matching, blame-free framing",
+        "Confirmation rules: named next steps, specific timeframes",
+        "Ineligibility rules: concrete alternatives, no dead ends",
+        "Sensitive service rules: neutral language, purpose transparency"
+      ],
+      "nextSteps": "Test across 3 briefs with content review checkbox enabled. Compare against previous output for sentence length, error specificity, and confirmation quality."
     }
   ]
 }
