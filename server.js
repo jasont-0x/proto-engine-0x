@@ -195,7 +195,7 @@ app.get('/', (req, res) => {
     .badge { display: inline-block; font-size: 14px; font-weight: 700; padding: 4px 10px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
     .badge--stable { background: #00703c; color: white; }
     .badge--beta { background: #1d70b8; color: white; }
-    footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
     @media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
 </head>
@@ -311,7 +311,7 @@ app.get('/v1', (req, res) => {
     @keyframes spin { to { transform: rotate(360deg); } }
 
 
-    footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
 @media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
 </head>
@@ -782,7 +782,7 @@ app.get('/v2', (req, res) => {
     @keyframes spin { to { transform: rotate(360deg); } }
 
 
-    footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
 @media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
 </head>
@@ -1195,7 +1195,7 @@ app.get('/prototypes', async (req, res) => {
     .open-link { display: inline-flex; align-items: center; justify-content: center; width: 160px; background: #1d70b8; color: white; text-decoration: none; padding: 10px 0; font-size: 16px; font-weight: 700; font-family: inherit; }
     .open-link:hover { background: #003078; }
     .empty-state { background: white; border: 1px solid #b1b4b6; padding: 60px 30px; text-align: center; color: #505a5f; font-size: 16px; }
-    footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
   </style>
 </head>
 <body>
@@ -1286,7 +1286,7 @@ app.get('/design-history', (req, res) => {
     .version-name { font-size: 24px; font-weight: 700; color: #1d70b8; text-decoration: none; }
     .version-name:hover { text-decoration: underline; }
     .version-date { font-size: 16px; color: #505a5f; margin-top: 4px; }
-    footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
     @media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
 </head>
@@ -1329,7 +1329,7 @@ app.get('/design-history/:version', (req, res) => {
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
     main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
-    footer { background: #0b0c0c; padding: 20px 30px; color: #bfc1c3; font-size: 14px; text-align: center; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
     @media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
 </head>
