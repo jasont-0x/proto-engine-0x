@@ -375,6 +375,7 @@ app.get('/v1', (req, res) => {
           <div class="progress-bar-fill" id="progressBar"></div>
         </div>
         <ul class="progress-steps">
+          <li id="step-pdf" style="display:none;"><span class="step-icon" id="icon-pdf">–</span> Reading document</li>
           <li id="step-claude"><span class="step-icon" id="icon-claude">–</span> Generating with Claude</li>
           <li id="step-github"><span class="step-icon" id="icon-github">–</span> Pushing to GitHub</li>
           <li id="step-render"><span class="step-icon" id="icon-render">–</span> Creating Render service</li>
@@ -392,6 +393,7 @@ app.get('/v1', (req, res) => {
         </div>
         <p class="done-sub">It is ready to use. Share the link with your team.</p>
         <a href="#" id="openProtoBtn" class="open-proto-btn" target="_blank" rel="noopener">Open prototype</a>
+        <div id="pdfTruncatedNotice" style="display:none; margin-top: 20px; padding: 15px 20px; border-left: 10px solid #b1b4b6; font-size: 16px; color: #0b0c0c;">Your document was long so we summarised the most relevant parts. The prototype is based on that summary.</div>
       </div>
 
       <!-- Error panel -->
@@ -424,14 +426,29 @@ app.get('/v1', (req, res) => {
   // Real done only fires when server responds
   let progressTimer = null;
 
-  function startFakeProgress() {
+  function startFakeProgress(hasPdf) {
     const bar = document.getElementById('progressBar');
-    const steps = [
-      { stepId: 'step-claude',  iconId: 'icon-claude',  delay: 0,     pct: 15 },
-      { stepId: 'step-github',  iconId: 'icon-github',  delay: 18000, pct: 45 },
-      { stepId: 'step-render',  iconId: 'icon-render',  delay: 30000, pct: 65 },
-      { stepId: 'step-deploy',  iconId: 'icon-deploy',  delay: 45000, pct: 80 }
-    ];
+    const pdfStep = document.getElementById('step-pdf');
+    let steps;
+
+    if (hasPdf) {
+      pdfStep.style.display = '';
+      steps = [
+        { stepId: 'step-pdf',     iconId: 'icon-pdf',     delay: 0,     pct: 10 },
+        { stepId: 'step-claude',  iconId: 'icon-claude',  delay: 12000, pct: 25 },
+        { stepId: 'step-github',  iconId: 'icon-github',  delay: 24000, pct: 50 },
+        { stepId: 'step-render',  iconId: 'icon-render',  delay: 36000, pct: 65 },
+        { stepId: 'step-deploy',  iconId: 'icon-deploy',  delay: 50000, pct: 80 }
+      ];
+    } else {
+      pdfStep.style.display = 'none';
+      steps = [
+        { stepId: 'step-claude',  iconId: 'icon-claude',  delay: 0,     pct: 15 },
+        { stepId: 'step-github',  iconId: 'icon-github',  delay: 18000, pct: 45 },
+        { stepId: 'step-render',  iconId: 'icon-render',  delay: 30000, pct: 65 },
+        { stepId: 'step-deploy',  iconId: 'icon-deploy',  delay: 45000, pct: 80 }
+      ];
+    }
 
     let prevStepId = null, prevIconId = null;
     steps.forEach(function(s) {
@@ -462,16 +479,20 @@ app.get('/v1', (req, res) => {
     const donePanel = document.getElementById('donePanel');
     const errorPanel = document.getElementById('errorPanel');
     const bar = document.getElementById('progressBar');
+    const hasPdf = document.getElementById('pdf').files.length > 0;
 
     // Reset UI
     donePanel.className = 'done-panel';
     errorPanel.className = 'error-panel';
+    document.getElementById('pdfTruncatedNotice').style.display = 'none';
     progressPanel.className = 'progress-panel visible';
     bar.style.width = '5%';
     bar.className = 'progress-bar-fill';
-    ['step-claude','step-github','step-render','step-deploy'].forEach(function(id) {
+    var allSteps = ['step-claude','step-github','step-render','step-deploy'];
+    if (hasPdf) allSteps.unshift('step-pdf');
+    allSteps.forEach(function(id) {
       document.getElementById(id).className = '';
-      const iconId = 'icon-' + id.replace('step-', '');
+      var iconId = 'icon-' + id.replace('step-', '');
       document.getElementById(iconId).textContent = '–';
     });
 
@@ -479,7 +500,7 @@ app.get('/v1', (req, res) => {
     btnArrow.style.display = 'none';
     btnText.innerHTML = '<span class="spinner"></span> Generating&hellip;';
 
-    startFakeProgress();
+    startFakeProgress(hasPdf);
 
     try {
       const formData = new FormData(this);
@@ -497,7 +518,9 @@ app.get('/v1', (req, res) => {
       // All steps done
       bar.style.width = '100%';
       bar.className = 'progress-bar-fill complete';
-      ['step-claude','step-github','step-render','step-deploy'].forEach(function(id) {
+      var doneSteps = ['step-claude','step-github','step-render','step-deploy'];
+      if (hasPdf) doneSteps.unshift('step-pdf');
+      doneSteps.forEach(function(id) {
         setStep(id, 'icon-' + id.replace('step-', ''), 'done');
       });
 
@@ -505,6 +528,11 @@ app.get('/v1', (req, res) => {
       progressPanel.className = 'progress-panel';
       document.getElementById('openProtoBtn').href = result.url;
       donePanel.className = 'done-panel visible';
+
+      // Show truncation notice if applicable
+      if (result.pdfTruncated) {
+        document.getElementById('pdfTruncatedNotice').style.display = 'block';
+      }
 
     } catch (err) {
       stopFakeProgress();
@@ -540,13 +568,52 @@ app.post('/generate-v1', upload.single('pdf'), async (req, res) => {
     if (!githubUsername) return res.status(500).json({ error: 'GITHUB_USERNAME not set' });
     if (!brief || brief.trim().length < 5) return res.status(400).json({ error: 'Please describe your service' });
 
-    // Step 1: Claude
-    let userMessage = `Brief: ${brief.trim()}`;
+    // Step 1: PDF summarisation
+    let pdfSummary = null;
+    let pdfTruncated = false;
     if (req.file) {
       try {
         const pdfData = await pdfParse(req.file.buffer);
-        userMessage += `\n\nAdditional context from PDF:\n${pdfData.text.slice(0, 3000)}`;
-      } catch (e) {}
+        let pdfText = pdfData.text;
+        if (pdfText.length > 15000) {
+          if (pdfText.length > 80000) {
+            pdfText = pdfText.slice(0, 80000);
+            pdfTruncated = true;
+          }
+          try {
+            const summaryResponse = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01'
+              },
+              body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 2000,
+                system: 'You are a government policy analyst. You will receive a service brief and a policy document. Extract and summarise only the content relevant to the brief. Return a clean markdown summary covering: eligibility rules and criteria, evidence requirements, key process steps and timeframes, any user-facing terminology that must be used, and any exclusions or special cases. Be concise. Maximum 1500 words.',
+                messages: [{ role: 'user', content: `Brief: ${brief.trim()}\n\nDocument:\n${pdfText}` }]
+              })
+            });
+            if (summaryResponse.ok) {
+              const summaryData = await summaryResponse.json();
+              pdfSummary = summaryData.content[0].text.trim();
+            }
+          } catch (e) {
+            console.error('PDF summarisation failed, continuing without summary:', e.message);
+          }
+        } else {
+          pdfSummary = pdfText;
+        }
+      } catch (e) {
+        console.error('PDF parsing failed:', e.message);
+      }
+    }
+
+    // Step 2: Claude generation
+    let userMessage = `Brief: ${brief.trim()}`;
+    if (pdfSummary) {
+      userMessage += `\n\nPolicy document summary — use this to inform eligibility rules, question wording, hints, confirmation content, and any guidance:\n${pdfSummary}`;
     }
     if (url && url.trim()) userMessage += `\n\nReference URL: ${url.trim()}`;
     userMessage += '\n\nReturn only the JSON object. No explanation. No markdown.';
@@ -645,7 +712,7 @@ app.post('/generate-v1', upload.single('pdf'), async (req, res) => {
       createdAt: new Date().toISOString()
     }, githubUsername, githubToken).catch(e => console.error('Log write failed:', e));
 
-    res.json({ url: protoUrl, repoUrl });
+    res.json({ url: protoUrl, repoUrl, pdfTruncated });
 
   } catch (err) {
     console.error(err);
@@ -773,6 +840,7 @@ app.get('/v2', (req, res) => {
           <div class="progress-bar-fill" id="progressBar"></div>
         </div>
         <ul class="progress-steps">
+          <li id="step-pdf" style="display:none;"><span class="step-icon" id="icon-pdf">–</span> Reading document</li>
           <li id="step-claude"><span class="step-icon" id="icon-claude">–</span> Generating with Claude</li>
           <li id="step-github"><span class="step-icon" id="icon-github">–</span> Pushing to GitHub</li>
           <li id="step-render"><span class="step-icon" id="icon-render">–</span> Creating Render service</li>
@@ -790,6 +858,7 @@ app.get('/v2', (req, res) => {
         </div>
         <p class="done-sub">It is ready to use. Share the link with your team.</p>
         <a href="#" id="openProtoBtn" class="open-proto-btn" target="_blank" rel="noopener">Open prototype</a>
+        <div id="pdfTruncatedNotice" style="display:none; margin-top: 20px; padding: 15px 20px; border-left: 10px solid #b1b4b6; font-size: 16px; color: #0b0c0c;">Your document was long so we summarised the most relevant parts. The prototype is based on that summary.</div>
       </div>
 
       <!-- Error panel -->
@@ -822,14 +891,29 @@ app.get('/v2', (req, res) => {
   // Real done only fires when server responds
   let progressTimer = null;
 
-  function startFakeProgress() {
+  function startFakeProgress(hasPdf) {
     const bar = document.getElementById('progressBar');
-    const steps = [
-      { stepId: 'step-claude',  iconId: 'icon-claude',  delay: 0,     pct: 15 },
-      { stepId: 'step-github',  iconId: 'icon-github',  delay: 18000, pct: 45 },
-      { stepId: 'step-render',  iconId: 'icon-render',  delay: 30000, pct: 65 },
-      { stepId: 'step-deploy',  iconId: 'icon-deploy',  delay: 45000, pct: 80 }
-    ];
+    const pdfStep = document.getElementById('step-pdf');
+    let steps;
+
+    if (hasPdf) {
+      pdfStep.style.display = '';
+      steps = [
+        { stepId: 'step-pdf',     iconId: 'icon-pdf',     delay: 0,     pct: 10 },
+        { stepId: 'step-claude',  iconId: 'icon-claude',  delay: 12000, pct: 25 },
+        { stepId: 'step-github',  iconId: 'icon-github',  delay: 24000, pct: 50 },
+        { stepId: 'step-render',  iconId: 'icon-render',  delay: 36000, pct: 65 },
+        { stepId: 'step-deploy',  iconId: 'icon-deploy',  delay: 50000, pct: 80 }
+      ];
+    } else {
+      pdfStep.style.display = 'none';
+      steps = [
+        { stepId: 'step-claude',  iconId: 'icon-claude',  delay: 0,     pct: 15 },
+        { stepId: 'step-github',  iconId: 'icon-github',  delay: 18000, pct: 45 },
+        { stepId: 'step-render',  iconId: 'icon-render',  delay: 30000, pct: 65 },
+        { stepId: 'step-deploy',  iconId: 'icon-deploy',  delay: 45000, pct: 80 }
+      ];
+    }
 
     let prevStepId = null, prevIconId = null;
     steps.forEach(function(s) {
@@ -860,16 +944,20 @@ app.get('/v2', (req, res) => {
     const donePanel = document.getElementById('donePanel');
     const errorPanel = document.getElementById('errorPanel');
     const bar = document.getElementById('progressBar');
+    const hasPdf = document.getElementById('pdf').files.length > 0;
 
     // Reset UI
     donePanel.className = 'done-panel';
     errorPanel.className = 'error-panel';
+    document.getElementById('pdfTruncatedNotice').style.display = 'none';
     progressPanel.className = 'progress-panel visible';
     bar.style.width = '5%';
     bar.className = 'progress-bar-fill';
-    ['step-claude','step-github','step-render','step-deploy'].forEach(function(id) {
+    var allSteps = ['step-claude','step-github','step-render','step-deploy'];
+    if (hasPdf) allSteps.unshift('step-pdf');
+    allSteps.forEach(function(id) {
       document.getElementById(id).className = '';
-      const iconId = 'icon-' + id.replace('step-', '');
+      var iconId = 'icon-' + id.replace('step-', '');
       document.getElementById(iconId).textContent = '–';
     });
 
@@ -877,7 +965,7 @@ app.get('/v2', (req, res) => {
     btnArrow.style.display = 'none';
     btnText.innerHTML = '<span class="spinner"></span> Generating&hellip;';
 
-    startFakeProgress();
+    startFakeProgress(hasPdf);
 
     try {
       const formData = new FormData(this);
@@ -895,7 +983,9 @@ app.get('/v2', (req, res) => {
       // All steps done
       bar.style.width = '100%';
       bar.className = 'progress-bar-fill complete';
-      ['step-claude','step-github','step-render','step-deploy'].forEach(function(id) {
+      var doneSteps = ['step-claude','step-github','step-render','step-deploy'];
+      if (hasPdf) doneSteps.unshift('step-pdf');
+      doneSteps.forEach(function(id) {
         setStep(id, 'icon-' + id.replace('step-', ''), 'done');
       });
 
@@ -903,6 +993,11 @@ app.get('/v2', (req, res) => {
       progressPanel.className = 'progress-panel';
       document.getElementById('openProtoBtn').href = result.url;
       donePanel.className = 'done-panel visible';
+
+      // Show truncation notice if applicable
+      if (result.pdfTruncated) {
+        document.getElementById('pdfTruncatedNotice').style.display = 'block';
+      }
 
     } catch (err) {
       stopFakeProgress();
@@ -938,13 +1033,52 @@ app.post('/generate-v2', upload.single('pdf'), async (req, res) => {
     if (!githubUsername) return res.status(500).json({ error: 'GITHUB_USERNAME not set' });
     if (!brief || brief.trim().length < 5) return res.status(400).json({ error: 'Please describe your service' });
 
-    // Step 1: Claude
-    let userMessage = `Brief: ${brief.trim()}`;
+    // Step 1: PDF summarisation
+    let pdfSummary = null;
+    let pdfTruncated = false;
     if (req.file) {
       try {
         const pdfData = await pdfParse(req.file.buffer);
-        userMessage += `\n\nAdditional context from PDF:\n${pdfData.text.slice(0, 3000)}`;
-      } catch (e) {}
+        let pdfText = pdfData.text;
+        if (pdfText.length > 15000) {
+          if (pdfText.length > 80000) {
+            pdfText = pdfText.slice(0, 80000);
+            pdfTruncated = true;
+          }
+          try {
+            const summaryResponse = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01'
+              },
+              body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 2000,
+                system: 'You are a government policy analyst. You will receive a service brief and a policy document. Extract and summarise only the content relevant to the brief. Return a clean markdown summary covering: eligibility rules and criteria, evidence requirements, key process steps and timeframes, any user-facing terminology that must be used, and any exclusions or special cases. Be concise. Maximum 1500 words.',
+                messages: [{ role: 'user', content: `Brief: ${brief.trim()}\n\nDocument:\n${pdfText}` }]
+              })
+            });
+            if (summaryResponse.ok) {
+              const summaryData = await summaryResponse.json();
+              pdfSummary = summaryData.content[0].text.trim();
+            }
+          } catch (e) {
+            console.error('PDF summarisation failed, continuing without summary:', e.message);
+          }
+        } else {
+          pdfSummary = pdfText;
+        }
+      } catch (e) {
+        console.error('PDF parsing failed:', e.message);
+      }
+    }
+
+    // Step 2: Claude generation
+    let userMessage = `Brief: ${brief.trim()}`;
+    if (pdfSummary) {
+      userMessage += `\n\nPolicy document summary — use this to inform eligibility rules, question wording, hints, confirmation content, and any guidance:\n${pdfSummary}`;
     }
     if (url && url.trim()) userMessage += `\n\nReference URL: ${url.trim()}`;
     userMessage += '\n\nReturn only the JSON object. No explanation. No markdown.';
@@ -984,7 +1118,7 @@ app.post('/generate-v2', upload.single('pdf'), async (req, res) => {
       throw new Error('Prototype spec incomplete. Try again.');
     }
 
-    // Step 2: Build and push to GitHub
+    // Step 3: Build and push to GitHub
     const files = buildPrototypeFilesV2(spec);
     const timestamp = Date.now();
     const repoName = `prototype-${timestamp}`;
@@ -1014,7 +1148,7 @@ app.post('/generate-v2', upload.single('pdf'), async (req, res) => {
       createdAt: new Date().toISOString()
     }, githubUsername, githubToken).catch(e => console.error('Log write failed:', e));
 
-    res.json({ url: protoUrl, repoUrl });
+    res.json({ url: protoUrl, repoUrl, pdfTruncated });
 
   } catch (err) {
     console.error(err);

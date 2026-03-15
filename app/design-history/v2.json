@@ -15,6 +15,21 @@
         "Separate v2 prompt and generator files — v1 untouched"
       ],
       "nextSteps": "Stability testing on complex briefs. Once confirmed stable, v3 will add task lists, interruption cards, content pages, and date inputs."
+    },
+    {
+      "title": "PDF handling improved",
+      "date": "March 2026",
+      "problem": "PDF uploads made no visible difference to generated prototypes. Raw PDF text was truncated aggressively, not summarised intelligently, and Claude had no instruction on how to use it. Large documents would produce worse results than small ones.",
+      "approach": "Added a dedicated PDF summarisation step before prototype generation. Claude reads the brief and the document together and extracts only the relevant content — eligibility rules, evidence requirements, process steps, timeframes, and key terminology. Documents over roughly 100 pages are truncated before summarisation and the user is informed. If the summarisation call fails, generation continues without it.",
+      "whatChanged": [
+        "New PDF summarisation Claude call before main generation call",
+        "Summarisation is brief-aware — extracts only content relevant to the service",
+        "Documents over 15000 characters truncated to 80000 characters before summarisation",
+        "User shown a notice if their document was too long to read in full",
+        "New progress step: Reading document — visible only when a PDF is attached",
+        "PDF improvements applied to both v1 and v2"
+      ],
+      "nextSteps": "Test with real policy PDFs of varying lengths to confirm summary quality and content improvement in generated prototypes."
     }
   ]
 }
