@@ -732,6 +732,7 @@ app.post('/generate-v1', upload.single('pdf'), async (req, res) => {
     // Step 4: Poll until actually live
     const protoUrl = `https://${serviceName}.onrender.com`;
     await pollUntilLive(protoUrl);
+    await new Promise(r => setTimeout(r, 20000));
 
     // Log it (fire and forget)
     appendToLog({
@@ -1184,6 +1185,7 @@ app.post('/generate-v2', upload.single('pdf'), async (req, res) => {
     // Step 4: Poll until actually live
     const protoUrl = `https://${serviceName}.onrender.com`;
     await pollUntilLive(protoUrl);
+    await new Promise(r => setTimeout(r, 20000));
 
     // Log it (fire and forget)
     appendToLog({
