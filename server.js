@@ -1440,14 +1440,18 @@ app.get('/roadmap', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About this tool – Prototype Engine</title>
+  <title>How the tool works – Prototype Engine</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
     main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
-    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 30px; }
-    h2 { font-size: 27px; font-weight: 700; color: #0b0c0c; margin-top: 40px; margin-bottom: 10px; }
-    p { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 20px; }
+    .govuk-width-container { max-width: 640px; }
+    .govuk-heading-l { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 30px; }
+    .govuk-heading-m { font-size: 27px; font-weight: 700; color: #0b0c0c; margin-top: 40px; margin-bottom: 15px; }
+    .govuk-body { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 20px; }
+    .govuk-list { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 20px; padding-left: 0; list-style: none; }
+    .govuk-list--bullet { padding-left: 20px; list-style-type: disc; }
+    .govuk-list--bullet li { margin-bottom: 5px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 19px; }
     thead th { text-align: left; padding: 12px 20px 12px 0; border-bottom: 2px solid #0b0c0c; font-weight: 700; color: #0b0c0c; }
     tbody td { padding: 12px 20px 12px 0; border-bottom: 1px solid #b1b4b6; color: #0b0c0c; vertical-align: top; }
@@ -1457,7 +1461,7 @@ app.get('/roadmap', (req, res) => {
     .status-dot--testing { background: #1d70b8; }
     .status-dot--planned { background: transparent; border: 1.5px solid #b1b4b6; }
     footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
-    @media (max-width: 768px) { h1 { font-size: 32px; } h2 { font-size: 22px; } }
+    @media (max-width: 768px) { .govuk-heading-l { font-size: 32px; } .govuk-heading-m { font-size: 22px; } }
   </style>
 </head>
 <body>
@@ -1475,28 +1479,78 @@ app.get('/roadmap', (req, res) => {
   </div>
 </header>
 <main>
-  <h1>About this tool</h1>
+  <div class="govuk-width-container">
+    <h1 class="govuk-heading-l">How the tool works</h1>
 
-  <h2>What it does</h2>
-  <p>This tool generates working GOV.UK prototypes from a plain English brief. It uses the Claude API to produce a complete prototype — with routing, validation, and GDS components — and deploys it to a live URL. No code is required.</p>
+    <h2 class="govuk-heading-m">What it does</h2>
+    <p class="govuk-body">This tool helps content designers create a research-ready GOV.UK prototype in around 5 minutes.</p>
+    <p class="govuk-body">It works like this:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>You describe your service using three short prompts</li>
+      <li>Claude builds a working prototype using GDS components</li>
+      <li>The prototype deploys automatically to a shareable URL</li>
+      <li>No code is required</li>
+    </ul>
 
-  <h2>How it was developed</h2>
-  <p>This started as an experiment in using AI to support service design. Through iteration, we found that wrapping the AI in a structured environment — with consistent inputs, stable outputs, and automatic deployment — made prototypes more reliable and easier to share across the team. This tool is the result of that exploration.</p>
+    <h2 class="govuk-heading-m">Who it is for</h2>
+    <p class="govuk-body">It is designed for content designers who need to move quickly — creating a prototype without waiting for developer support.</p>
+    <p class="govuk-body">It can also be useful for other members of a service team, including:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>Product managers</li>
+      <li>Policy professionals</li>
+      <li>User researchers</li>
+    </ul>
 
-  <h2>Development approach</h2>
-  <p>Each version introduces one new capability, tested for stability before the next begins. This is early-stage work and the roadmap will evolve based on what we learn.</p>
+    <h2 class="govuk-heading-m">Why it works this way</h2>
+    <p class="govuk-body">The tool wraps Claude in a controlled environment rather than using Claude directly. This gives us more control over what is generated and how. The benefits of this approach include:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>Output is consistent and predictable across the team</li>
+      <li>Prototypes follow GDS patterns without requiring technical knowledge</li>
+      <li>Each release is tested for stability before new capabilities are added</li>
+      <li>The tool improves incrementally without breaking what already works</li>
+      <li>If a new release causes problems, we can roll back to the previous stable version or keep the issue isolated without affecting what already works</li>
+    </ul>
 
-  <table>
-    <thead>
-      <tr><th>Version</th><th>What it adds</th><th>Status</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>v1</td><td>Simple prototypes with an end to end journey and success screen</td><td><span class="status"><span class="status-dot status-dot--stable"></span> Stable</span></td></tr>
-      <tr><td>v2</td><td>Branching journeys with multiple user paths</td><td><span class="status"><span class="status-dot status-dot--testing"></span> In testing</span></td></tr>
-      <tr><td>v3</td><td>Improving content design and adding further GDS patterns</td><td><span class="status"><span class="status-dot status-dot--planned"></span> Planned</span></td></tr>
-      <tr><td>v4</td><td>Additional user functionality</td><td><span class="status"><span class="status-dot status-dot--planned"></span> Planned</span></td></tr>
-    </tbody>
-  </table>
+    <h2 class="govuk-heading-m">What the tool currently does well</h2>
+    <p class="govuk-body">Both versions produce end-to-end prototypes. Every generated prototype includes:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>A start page, question pages, a check your answers page, and a confirmation screen</li>
+      <li>Server-side validation on every question page</li>
+      <li>Automatic deployment to a shareable URL</li>
+    </ul>
+    <p class="govuk-body">Version 2 also supports branching journeys, where different answers lead to different pages.</p>
+
+    <h2 class="govuk-heading-m">What the tool does not yet do</h2>
+    <p class="govuk-body">The tool produces functional prototypes. There are some things it does not yet do well:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>Content design is functional but may need reviewing by a content designer before use in research</li>
+      <li>Journeys cover the main flow but not every edge case or exception route</li>
+      <li>Complex GDS patterns such as task lists and interruption cards are not yet supported</li>
+    </ul>
+
+    <h2 class="govuk-heading-m">Known unknowns</h2>
+    <p class="govuk-body">This is early-stage work. There are three things we have not yet been able to determine:</p>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>Complexity ceiling — it is not yet clear how much complexity this tool can support before the generation workflow breaks down. We are testing this incrementally.</li>
+      <li>Scalability — the tool works well for individual use at low cost. It has not yet been tested with multiple concurrent users, so performance at scale is still being assessed.</li>
+      <li>GOV.UK Prototype Kit updates — each generated prototype uses a specific version of the GOV.UK Prototype Kit. If GDS releases an update that changes how the kit works, this tool would need updating too. The amount of work that would involve is not yet known.</li>
+    </ul>
+
+    <h2 class="govuk-heading-m">Next steps</h2>
+    <p class="govuk-body">Development is incremental. Each version introduces one new capability and is tested for stability before the next begins. The current plan is:</p>
+
+    <table>
+      <thead>
+        <tr><th>Version</th><th>What it adds</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>v1</td><td>Simple prototypes with an end to end journey and success screen</td><td><span class="status"><span class="status-dot status-dot--stable"></span> Stable</span></td></tr>
+        <tr><td>v2</td><td>Branching journeys with multiple user paths</td><td><span class="status"><span class="status-dot status-dot--testing"></span> In testing</span></td></tr>
+        <tr><td>v3</td><td>Improving content design and adding further GDS patterns</td><td><span class="status"><span class="status-dot status-dot--planned"></span> Planned</span></td></tr>
+        <tr><td>v4</td><td>Additional user functionality</td><td><span class="status"><span class="status-dot status-dot--planned"></span> Planned</span></td></tr>
+      </tbody>
+    </table>
+  </div>
 </main>
 <footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
 </body>
