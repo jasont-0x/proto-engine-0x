@@ -1452,14 +1452,6 @@ app.get('/roadmap', (req, res) => {
     .govuk-list { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 20px; padding-left: 0; list-style: none; }
     .govuk-list--bullet { padding-left: 20px; list-style-type: disc; }
     .govuk-list--bullet li { margin-bottom: 5px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 19px; }
-    thead th { text-align: left; padding: 12px 20px 12px 0; border-bottom: 2px solid #0b0c0c; font-weight: 700; color: #0b0c0c; }
-    tbody td { padding: 12px 20px 12px 0; border-bottom: 1px solid #b1b4b6; color: #0b0c0c; vertical-align: top; }
-    .status { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
-    .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .status-dot--stable { background: #00703c; }
-    .status-dot--testing { background: #1d70b8; }
-    .status-dot--planned { background: transparent; border: 1.5px solid #b1b4b6; }
     footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
     @media (max-width: 768px) { .govuk-heading-l { font-size: 32px; } .govuk-heading-m { font-size: 22px; } }
   </style>
@@ -1483,73 +1475,64 @@ app.get('/roadmap', (req, res) => {
     <h1 class="govuk-heading-l">How the tool works</h1>
 
     <h2 class="govuk-heading-m">What it does</h2>
-    <p class="govuk-body">This tool helps content designers create a research-ready GOV.UK prototype in around 5 minutes.</p>
-    <p class="govuk-body">It works like this:</p>
-    <ul class="govuk-list govuk-list--bullet">
-      <li>You describe your service using three short prompts</li>
-      <li>Claude builds a working prototype using GDS components</li>
-      <li>The prototype deploys automatically to a shareable URL</li>
-      <li>No code is required</li>
-    </ul>
+    <p class="govuk-body">This tool is a research and development project exploring how AI can help content designers prototype GOV.UK services faster. It generates a working prototype from a plain English brief in around 5 minutes — no code required.</p>
 
     <h2 class="govuk-heading-m">Who it is for</h2>
-    <p class="govuk-body">It is designed for content designers who need to move quickly — creating a prototype without waiting for developer support.</p>
-    <p class="govuk-body">It can also be useful for other members of a service team, including:</p>
-    <ul class="govuk-list govuk-list--bullet">
-      <li>Product managers</li>
-      <li>Policy professionals</li>
-      <li>User researchers</li>
-    </ul>
+    <p class="govuk-body">It is designed for content designers. It can also be used by product managers, policy professionals, and user researchers.</p>
 
     <h2 class="govuk-heading-m">Why it works this way</h2>
-    <p class="govuk-body">The tool wraps Claude in a controlled environment rather than using Claude directly. This gives us more control over what is generated and how. The benefits of this approach include:</p>
-    <ul class="govuk-list govuk-list--bullet">
-      <li>Output is consistent and predictable across the team</li>
-      <li>Prototypes follow GDS patterns without requiring technical knowledge</li>
-      <li>Each release is tested for stability before new capabilities are added</li>
-      <li>The tool improves incrementally without breaking what already works</li>
-      <li>If a new release causes problems, we can roll back to the previous stable version or keep the issue isolated without affecting what already works</li>
-    </ul>
+    <p class="govuk-body">The tool wraps Claude in a controlled environment. This makes output consistent, predictable, and shareable across the team. Each release is tested for stability before new capabilities are added. If something goes wrong, we can roll back without affecting what already works.</p>
 
-    <h2 class="govuk-heading-m">What the tool currently does well</h2>
-    <p class="govuk-body">Both versions produce end-to-end prototypes. Every generated prototype includes:</p>
+    <h2 class="govuk-heading-m">What it does well</h2>
+    <p class="govuk-body">Every prototype includes:</p>
     <ul class="govuk-list govuk-list--bullet">
-      <li>A start page, question pages, a check your answers page, and a confirmation screen</li>
-      <li>Server-side validation on every question page</li>
+      <li>A start page, question pages, check your answers, and a confirmation screen</li>
+      <li>Validation on every question</li>
       <li>Automatic deployment to a shareable URL</li>
     </ul>
-    <p class="govuk-body">Version 2 also supports branching journeys, where different answers lead to different pages.</p>
+    <p class="govuk-body">Version 2 adds branching journeys, where different answers lead to different pages.</p>
 
-    <h2 class="govuk-heading-m">What the tool does not yet do</h2>
-    <p class="govuk-body">The tool produces functional prototypes. There are some things it does not yet do well:</p>
+    <h2 class="govuk-heading-m">Current limitations</h2>
+    <p class="govuk-body">The tool is at an early stage. The biggest limitation right now is content and design quality.</p>
+    <p class="govuk-body">Specifically:</p>
     <ul class="govuk-list govuk-list--bullet">
-      <li>Content design is functional but may need reviewing by a content designer before use in research</li>
-      <li>Journeys cover the main flow but not every edge case or exception route</li>
-      <li>Complex GDS patterns such as task lists and interruption cards are not yet supported</li>
+      <li>Generated content is functional but lacks the design thinking a content designer would apply manually</li>
+      <li>Question wording, hint text, and confirmation pages often need significant revision</li>
+      <li>Journeys cover the main flow but not edge cases, exception routes, or nuanced policy decisions</li>
+      <li>The full range of GDS patterns is not yet supported</li>
     </ul>
+    <p class="govuk-body">Improving content and design quality is the primary focus of v3.</p>
 
     <h2 class="govuk-heading-m">Known unknowns</h2>
-    <p class="govuk-body">This is early-stage work. There are three things we have not yet been able to determine:</p>
+    <p class="govuk-body">As an R&D project, there are things we are still working out:</p>
     <ul class="govuk-list govuk-list--bullet">
-      <li>Complexity ceiling — it is not yet clear how much complexity this tool can support before the generation workflow breaks down. We are testing this incrementally.</li>
-      <li>Scalability — the tool works well for individual use at low cost. It has not yet been tested with multiple concurrent users, so performance at scale is still being assessed.</li>
-      <li>GOV.UK Prototype Kit updates — each generated prototype uses a specific version of the GOV.UK Prototype Kit. If GDS releases an update that changes how the kit works, this tool would need updating too. The amount of work that would involve is not yet known.</li>
+      <li>How much complexity the tool can support before the workflow breaks down</li>
+      <li>How it performs with multiple concurrent users</li>
+      <li>How much work a future GOV.UK Prototype Kit update would require</li>
     </ul>
 
     <h2 class="govuk-heading-m">Next steps</h2>
-    <p class="govuk-body">Development is incremental. Each version introduces one new capability and is tested for stability before the next begins. The current plan is:</p>
+    <p class="govuk-body">Each version introduces one new capability, tested for stability before the next begins.</p>
 
-    <table>
-      <thead>
-        <tr><th>Version</th><th>What it adds</th><th>Status</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>v1</td><td>Simple prototypes with an end to end journey and success screen</td><td><span class="status"><span class="status-dot status-dot--stable"></span> Stable</span></td></tr>
-        <tr><td>v2</td><td>Branching journeys with multiple user paths</td><td><span class="status"><span class="status-dot status-dot--testing"></span> In testing</span></td></tr>
-        <tr><td>v3</td><td>Improving content design and adding further GDS patterns</td><td><span class="status"><span class="status-dot status-dot--planned"></span> Planned</span></td></tr>
-        <tr><td>v4</td><td>Additional user functionality</td><td><span class="status"><span class="status-dot status-dot--planned"></span> Planned</span></td></tr>
-      </tbody>
-    </table>
+    <div style="max-width:560px;margin:24px 0;font-family:'GDS Transport',arial,sans-serif;">
+      <div style="padding:14px 20px;margin-bottom:4px;background:#0b5c3e;width:100%;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:15px;font-weight:700;color:white;">v1 — Foundation</span>
+        <span style="font-size:11px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:0.05em;background:#00703c;color:white;">Stable</span>
+      </div>
+      <div style="padding:14px 20px;margin-bottom:4px;background:#1d70b8;width:80%;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:15px;font-weight:700;color:white;">v2 — Branching</span>
+        <span style="font-size:11px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:0.05em;background:#003078;color:white;">In testing</span>
+      </div>
+      <div style="padding:14px 20px;margin-bottom:4px;background:#505a5f;width:60%;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:15px;font-weight:700;color:white;">v3 — Content and patterns</span>
+        <span style="font-size:11px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:0.05em;background:#383f43;color:white;">Planned</span>
+      </div>
+      <div style="padding:14px 20px;margin-bottom:4px;background:#b1b4b6;width:55%;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:15px;font-weight:700;color:#0b0c0c;">v4 — Edit mode</span>
+        <span style="font-size:11px;font-weight:700;padding:2px 8px;text-transform:uppercase;letter-spacing:0.05em;background:#6f777b;color:white;">Planned</span>
+      </div>
+      <p style="font-size:13px;color:#505a5f;margin-top:16px;">Each layer is confirmed stable before the next begins.</p>
+    </div>
   </div>
 </main>
 <footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
