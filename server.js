@@ -1434,5 +1434,74 @@ app.get('/design-history/:version', (req, res) => {
 </html>`);
 });
 
+app.get('/roadmap', (req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About this tool – Prototype Engine</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
+    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 30px; }
+    h2 { font-size: 27px; font-weight: 700; color: #0b0c0c; margin-top: 40px; margin-bottom: 10px; }
+    p { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 19px; }
+    thead th { text-align: left; padding: 12px 20px 12px 0; border-bottom: 2px solid #0b0c0c; font-weight: 700; color: #0b0c0c; }
+    tbody td { padding: 12px 20px 12px 0; border-bottom: 1px solid #b1b4b6; color: #0b0c0c; vertical-align: top; }
+    .status { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .status-dot--stable { background: #00703c; }
+    .status-dot--testing { background: #1d70b8; }
+    .status-dot--planned { background: transparent; border: 1.5px solid #b1b4b6; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
+    @media (max-width: 768px) { h1 { font-size: 32px; } h2 { font-size: 22px; } }
+  </style>
+</head>
+<body>
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
+  <div style="max-width:960px;margin:0 auto;padding:0 30px;">
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+      <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="11" height="11" fill="white"/>
+        <rect x="13" y="0" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="0" y="13" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="13" y="13" width="11" height="11" fill="white"/>
+      </svg>
+      <span style="color:white;font-size:15px;font-weight:700;font-family:arial,sans-serif;letter-spacing:-0.3px;">Prototype Engine</span>
+    </a>
+  </div>
+</header>
+<main>
+  <h1>About this tool</h1>
+
+  <h2>What it does</h2>
+  <p>This tool generates working GOV.UK prototypes from a plain English brief. It uses the Claude API to produce a complete prototype — with routing, validation, and GDS components — and deploys it to a live URL. No code is required.</p>
+
+  <h2>How it was developed</h2>
+  <p>This started as an experiment in using AI to support service design. Through iteration, we found that wrapping the AI in a structured environment — with consistent inputs, stable outputs, and automatic deployment — made prototypes more reliable and easier to share across the team. This tool is the result of that exploration.</p>
+
+  <h2>Development approach</h2>
+  <p>Each version introduces one new capability, tested for stability before the next begins. This is early-stage work and the roadmap will evolve based on what we learn.</p>
+
+  <table>
+    <thead>
+      <tr><th>Version</th><th>What it adds</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>v1</td><td>Simple prototypes with an end to end journey and success screen</td><td><span class="status"><span class="status-dot status-dot--stable"></span> Stable</span></td></tr>
+      <tr><td>v2</td><td>Branching journeys with multiple user paths</td><td><span class="status"><span class="status-dot status-dot--testing"></span> In testing</span></td></tr>
+      <tr><td>v3</td><td>Improving content design and adding further GDS patterns</td><td><span class="status"><span class="status-dot status-dot--planned"></span> Planned</span></td></tr>
+      <tr><td>v4</td><td>Additional user functionality</td><td><span class="status"><span class="status-dot status-dot--planned"></span> Planned</span></td></tr>
+    </tbody>
+  </table>
+</main>
+<footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
+</body>
+</html>`);
+});
+
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Prototype Engine running on port ${port}`));
