@@ -181,44 +181,34 @@ app.get('/', (req, res) => {
   <title>Prototype Engine</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "GDS Transport", arial, sans-serif; background: #f8f8f8; min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
-    main { max-width: 960px; margin: 0 auto; padding: 50px 30px 60px; flex: 1; width: 100%; }
-    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 8px; letter-spacing: -0.5px; }
-    .lede { font-size: 19px; color: #505a5f; margin-bottom: 40px; line-height: 1.5; }
-    .version-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px; }
-    .version-card { background: white; padding: 28px 30px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.06); transition: box-shadow 0.2s ease, transform 0.2s ease; }
-    .version-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04); transform: translateY(-1px); }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
+    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 10px; }
+    .lede { font-size: 20px; color: #0b0c0c; margin-bottom: 40px; line-height: 1.5; }
+    .version-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1px; background: #d8dde0; border: 1px solid #d8dde0; }
+    .version-card { background: white; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .version-card:hover { background: #f8f8f8; }
     .version-info { flex: 1; }
-    .version-name { font-size: 22px; font-weight: 700; color: #0b0c0c; text-decoration: none; }
-    .version-name:hover { color: #1d70b8; }
-    .version-desc { font-size: 16px; color: #505a5f; margin-top: 6px; line-height: 1.5; }
-    .badge { display: inline-block; font-size: 12px; font-weight: 700; padding: 4px 12px; text-transform: uppercase; letter-spacing: 0.8px; white-space: nowrap; border-radius: 20px; }
-    .badge--stable { background: #e6f4ed; color: #00703c; }
-    .badge--beta { background: #e8f1f8; color: #1d70b8; }
-    .links-row { margin-top: 32px; display: flex; gap: 24px; flex-wrap: wrap; }
-    .links-row a { font-size: 16px; color: #505a5f; text-decoration: none; transition: color 0.15s; }
-    .links-row a:hover { color: #1d70b8; }
-    .links-row a span { margin-right: 4px; }
-    details { margin-top: 30px; font-size: 16px; color: #0b0c0c; }
-    details summary { cursor: pointer; color: #1d70b8; font-size: 16px; list-style: none; display: flex; align-items: center; gap: 6px; }
-    details summary::-webkit-details-marker { display: none; }
-    details summary::before { content: ''; display: inline-block; width: 0; height: 0; border-left: 6px solid #1d70b8; border-top: 5px solid transparent; border-bottom: 5px solid transparent; transition: transform 0.15s ease; }
-    details[open] summary::before { transform: rotate(90deg); }
-    .details-body { padding: 20px 24px; background: white; border-radius: 8px; margin-top: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.06); }
-    .details-body p { font-size: 16px; margin-bottom: 15px; line-height: 1.6; color: #0b0c0c; }
-    .details-body ul { font-size: 16px; line-height: 1.8; padding-left: 20px; color: #0b0c0c; }
-    footer { background: #ffffff; padding: 24px 30px; color: #6f777b; font-size: 14px; text-align: center; border-top: 1px solid #e8e8e8; }
-    @media (max-width: 768px) { h1 { font-size: 32px; } .version-card { flex-direction: column; align-items: flex-start; } }
-    @keyframes pe-logo-in {
-      0% { opacity:0; transform:scale(0.7) rotate(-8deg); }
-      60% { transform:scale(1.08) rotate(2deg); }
-      100% { opacity:1; transform:scale(1) rotate(0deg); }
-    }
-    .pe-logo { animation: pe-logo-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .version-name { font-size: 24px; font-weight: 700; color: #0b0c0c; text-decoration: none; }
+    .version-name:hover { text-decoration: underline; }
+    .version-desc { font-size: 16px; color: #505a5f; margin-top: 4px; }
+    .badge { display: inline-block; font-size: 14px; font-weight: 700; padding: 4px 10px; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+    .badge--stable { background: #00703c; color: white; }
+    .badge--beta { background: #1d70b8; color: white; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
+    @media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
+<style>
+  @keyframes pe-logo-in {
+    0% { opacity:0; transform:scale(0.7) rotate(-8deg); }
+    60% { transform:scale(1.08) rotate(2deg); }
+    100% { opacity:1; transform:scale(1) rotate(0deg); }
+  }
+  .pe-logo { animation: pe-logo-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+</style>
 </head>
 <body>
-<header style="background:#e0531a;padding:14px 0;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
     <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
       <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -233,7 +223,7 @@ app.get('/', (req, res) => {
 </header>
 <main>
   <h1>Prototype Engine</h1>
-  <p class="lede">Build a working GOV.UK prototype from a plain English brief.</p>
+  <p class="lede">Choose a generator version to build your GOV.UK prototype.</p>
   <ul class="version-list">
     <li class="version-card">
       <div class="version-info">
@@ -250,15 +240,13 @@ app.get('/', (req, res) => {
       <span class="badge badge--beta">Beta</span>
     </li>
   </ul>
-  <div class="links-row">
-    <a href="/prototypes"><span>&#8594;</span> All prototypes</a>
-    <a href="/design-history"><span>&#8594;</span> Design history</a>
-  </div>
-  <details>
-    <summary>Product roadmap</summary>
-    <div class="details-body">
-      <p>Each version adds new capabilities. We release one at a time, test for stability, then build the next.</p>
-      <ul>
+  <details class="govuk-details" style="margin-top:30px;font-size:16px;color:#0b0c0c;">
+    <summary class="govuk-details__summary" style="cursor:pointer;color:#1d70b8;font-size:16px;">
+      <span class="govuk-details__summary-text" style="text-decoration:underline;">Product roadmap</span>
+    </summary>
+    <div class="govuk-details__text" style="padding:15px;border-left:5px solid #b1b4b6;margin-top:5px;">
+      <p class="govuk-body" style="font-size:16px;margin-bottom:15px;line-height:1.5;">Each version adds new capabilities to the prototype generator. We release one version at a time, test it for stability, then build the next. This means the stable version is always available while new features are tested.</p>
+      <ul style="font-size:16px;line-height:1.8;padding-left:20px;">
         <li>v1 — Simple linear prototypes (stable)</li>
         <li>v2 — Branching and conditional routing (beta)</li>
         <li>v3 — Additional GDS patterns: task lists, interruption cards, content pages (planned)</li>
@@ -279,90 +267,73 @@ app.get('/v1', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Build a prototype – Prototype Engine</title>
+  <title>Transform Prototype Engine</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "GDS Transport", arial, sans-serif; background: #f8f8f8; min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
-    main { max-width: 960px; margin: 0 auto; padding: 50px 30px 60px; flex: 1; width: 100%; }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
 
-    h1 { font-size: 42px; font-weight: 700; color: #0b0c0c; line-height: 1.15; margin-bottom: 12px; letter-spacing: -0.5px; }
-    .lede { font-size: 19px; color: #505a5f; margin-bottom: 36px; line-height: 1.5; }
-    .form-card { background: white; border-radius: 12px; padding: 36px 32px 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.06); }
-    .form-group { margin-bottom: 28px; }
-    label { display: block; font-size: 18px; font-weight: 700; color: #0b0c0c; margin-bottom: 6px; }
-    .hint { font-size: 15px; color: #6f777b; margin-bottom: 8px; line-height: 1.4; }
-    textarea, input[type="text"], input[type="url"] { width: 100%; padding: 12px 14px; font-size: 17px; font-family: inherit; border: 2px solid #b1b4b6; border-radius: 6px; background: white; color: #0b0c0c; transition: border-color 0.15s, box-shadow 0.15s; }
-    textarea:hover, input[type="url"]:hover { border-color: #0b0c0c; }
-    textarea:focus, input:focus { outline: none; border-color: #0b0c0c; box-shadow: 0 0 0 3px #ffdd00; }
-    textarea { resize: vertical; min-height: 72px; }
-    textarea::placeholder, input::placeholder { color: #b1b4b6; }
-    .file-upload-label { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: white; border: 2px solid #b1b4b6; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; color: #0b0c0c; transition: border-color 0.15s, background 0.15s; }
-    .file-upload-label:hover { border-color: #0b0c0c; background: #f8f8f8; }
-    .file-name { font-size: 14px; color: #6f777b; margin-top: 8px; }
+    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 20px; }
+    .lede { font-size: 20px; color: #0b0c0c; margin-bottom: 40px; line-height: 1.5; }
+    label { display: block; font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 8px; }
+    .hint { font-size: 16px; color: #505a5f; margin-bottom: 10px; }
+    textarea, input[type="text"], input[type="url"] { width: 100%; padding: 10px; font-size: 19px; font-family: inherit; border: 2px solid #0b0c0c; border-radius: 0; background: white; color: #0b0c0c; margin-bottom: 24px; }
+    textarea:focus, input:focus { outline: 3px solid #ffdd00; outline-offset: 0; box-shadow: inset 0 0 0 2px #0b0c0c; }
+    textarea { resize: vertical; }
+    .file-upload-label { display: inline-block; padding: 8px 14px; background: #f3f2f1; border: 2px solid #0b0c0c; cursor: pointer; font-size: 16px; margin-bottom: 8px; }
+    .file-name { font-size: 16px; color: #505a5f; margin-bottom: 24px; }
     input[type="file"] { display: none; }
-    .generate-btn { background: #00703c; color: white; border: none; padding: 14px 24px; font-size: 18px; font-weight: 700; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; border-radius: 6px; transition: background 0.15s, box-shadow 0.15s, transform 0.1s; box-shadow: 0 2px 4px rgba(0,112,60,0.2); }
-    .generate-btn:hover { background: #005a30; box-shadow: 0 4px 8px rgba(0,112,60,0.25); transform: translateY(-1px); }
-    .generate-btn:active { transform: translateY(0); box-shadow: 0 1px 2px rgba(0,112,60,0.2); }
-    .generate-btn:focus { outline: 3px solid #ffdd00; outline-offset: 2px; }
-    .generate-btn:disabled { background: #00703c; opacity: 0.7; cursor: wait; transform: none; box-shadow: none; }
-    .btn-arrow { width: 18px; height: 18px; fill: white; }
-    .form-footer { margin-top: 14px; font-size: 15px; color: #6f777b; }
-    .form-footer a { color: #6f777b; transition: color 0.15s; }
-    .form-footer a:hover { color: #1d70b8; }
+    .generate-btn { background: #00703c; color: white; border: none; padding: 13px 22px; font-size: 19px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+    .generate-btn:hover { background: #005a30; }
+    .generate-btn:focus { outline: 3px solid #ffdd00; outline-offset: 0; }
+    .generate-btn:disabled { background: #00703c; opacity: 0.75; cursor: wait; }
+    .btn-arrow { width: 20px; height: 20px; fill: white; }
 
-    /* Checkbox */
-    .checkbox-row { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px; background: #faf8fb; border: 1px solid #e8e0e8; border-radius: 8px; }
-    .checkbox-row input[type="checkbox"] { width: 22px; height: 22px; margin: 2px 0 0; cursor: pointer; accent-color: #6f3764; flex-shrink: 0; }
-    .checkbox-label { font-size: 17px; font-weight: 700; color: #0b0c0c; cursor: pointer; }
-    .exp-badge { display: inline-block; margin-left: 8px; padding: 2px 8px; background: #6f3764; color: white; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; border-radius: 3px; vertical-align: middle; }
-
-    /* Progress panel */
-    .progress-panel { display: none; margin-top: 24px; background: white; border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    .progress-panel.visible { display: block; animation: slideIn 0.3s ease; }
-    .progress-bar-track { background: #f0f0f0; height: 6px; margin-bottom: 24px; border-radius: 3px; overflow: hidden; }
-    .progress-bar-fill { height: 6px; background: linear-gradient(90deg, #1d70b8, #2b8cc4); width: 0%; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); border-radius: 3px; }
-    .progress-bar-fill.complete { background: linear-gradient(90deg, #00703c, #28a745); }
+    /* Progress bar */
+    .progress-panel { display: none; margin-top: 24px; background: white; border: 1px solid #d8dde0; border-radius: 6px; padding: 24px; }
+    .progress-panel.visible { display: block; animation: fadeIn 0.2s ease; }
+    .progress-bar-track { background: #f3f2f1; height: 4px; margin-bottom: 24px; border-radius: 2px; overflow: hidden; }
+    .progress-bar-fill { height: 4px; background: #1d70b8; width: 0%; transition: width 0.6s ease; border-radius: 2px; }
+    .progress-bar-fill.complete { background: #00703c; }
     .progress-steps { list-style: none; padding: 0; }
-    .progress-steps li { font-size: 15px; color: #b1b4b6; padding: 10px 0; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid #f5f5f5; transition: color 0.2s; }
+    .progress-steps li { font-size: 14px; color: #b1b4b6; padding: 9px 0; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f3f2f1; transition: color 0.2s; }
     .progress-steps li:last-child { border-bottom: none; }
     .progress-steps li.active { color: #0b0c0c; font-weight: 600; }
     .progress-steps li.done { color: #00703c; }
-    .step-icon { width: 20px; height: 20px; text-align: center; font-size: 13px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-    .progress-steps li.active .step-icon { background: #e8f1f8; color: #1d70b8; font-size: 10px; }
-    .progress-steps li.done .step-icon { background: #e6f4ed; color: #00703c; }
+    .step-icon { width: 16px; text-align: center; font-size: 12px; flex-shrink: 0; }
 
     /* Done panel */
-    .done-panel { display: none; margin-top: 24px; background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,112,60,0.1); border: 1px solid #c1e7d4; }
-    .done-panel.visible { display: block; animation: slideIn 0.4s ease; }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    .done-header { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
-    .done-tick-circle { width: 44px; height: 44px; border-radius: 50%; background: #00703c; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .done-panel { display: none; margin-top: 30px; background: white; border-left: 5px solid #00703c; padding: 24px; }
+    .done-panel.visible { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .done-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .done-tick-circle { width: 40px; height: 40px; border-radius: 50%; background: #00703c; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
     @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-    .done-tick-circle svg { width: 24px; height: 24px; fill: none; stroke: white; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .done-tick-circle svg { width: 22px; height: 22px; fill: none; stroke: white; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
     .done-tick-circle svg path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: drawTick 0.35s ease 0.3s forwards; }
     @keyframes drawTick { to { stroke-dashoffset: 0; } }
     .done-title { font-size: 24px; font-weight: 700; color: #0b0c0c; }
-    .done-sub { font-size: 16px; color: #505a5f; margin-bottom: 20px; line-height: 1.5; }
-    .open-proto-btn { display: inline-flex; align-items: center; gap: 8px; background: #1d70b8; color: white; padding: 13px 22px; font-size: 18px; font-weight: 700; font-family: inherit; text-decoration: none; border-radius: 6px; transition: background 0.15s, box-shadow 0.15s, transform 0.1s; box-shadow: 0 2px 4px rgba(29,112,184,0.2); }
-    .open-proto-btn:hover { background: #003078; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(29,112,184,0.25); }
-    .truncated-notice { margin-top: 20px; padding: 14px 18px; background: #f8f8f8; border-radius: 8px; border: 1px solid #e8e8e8; font-size: 15px; color: #505a5f; line-height: 1.5; }
+    .done-sub { font-size: 16px; color: #505a5f; margin-bottom: 20px; }
+    .open-proto-btn { display: inline-block; background: #1d70b8; color: white; padding: 12px 20px; font-size: 19px; font-weight: 700; font-family: inherit; text-decoration: none; }
+    .open-proto-btn:hover { background: #003078; }
 
     /* Error panel */
-    .error-panel { display: none; margin-top: 24px; background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 8px rgba(212,53,28,0.08); border: 1px solid #f6d7d2; }
-    .error-panel.visible { display: block; animation: slideIn 0.3s ease; }
-    .error-title { font-size: 18px; font-weight: 700; color: #d4351c; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-    .error-msg { font-size: 16px; color: #505a5f; line-height: 1.5; }
+    .error-panel { display: none; margin-top: 30px; background: white; border-left: 5px solid #d4351c; padding: 24px; }
+    .error-panel.visible { display: block; }
+    .error-title { font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 8px; }
+    .error-msg { font-size: 16px; color: #505a5f; }
 
     /* Spinner */
     .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    footer { background: #ffffff; padding: 24px 30px; color: #6f777b; font-size: 14px; text-align: center; border-top: 1px solid #e8e8e8; }
-    @media (max-width: 768px) { h1 { font-size: 32px; } .form-card { padding: 24px 20px; } }
+
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
+@media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
 </head>
 <body>
-<header style="background:#e0531a;padding:14px 0;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
     <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
       <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -379,42 +350,38 @@ app.get('/v1', (req, res) => {
 <div style="max-width: 600px;">
     <div>
       <h1>Build a GOV.UK prototype</h1>
-      <p class="lede">Describe your service and we'll generate a working prototype with GDS components, validation, and deployment.</p>
-      <div class="form-card">
+      <p class="lede">Describe your service and Claude will build a working GOV.UK prototype — no code required.</p>
       <form id="generateForm" enctype="multipart/form-data">
-        <div class="form-group">
+        <div>
           <label for="q1">Who are the users and what are their needs?</label>
           <textarea id="q1" name="q1" rows="3" placeholder="Parents applying for free school meals. They may be anxious and need to know quickly if they are eligible."></textarea>
         </div>
-        <div class="form-group">
+        <div>
           <label for="q2">What does the service need to achieve?</label>
           <textarea id="q2" name="q2" rows="3" placeholder="Help parents apply quickly. If ineligible, signpost to other support rather than leaving them at a dead end."></textarea>
         </div>
-        <div class="form-group">
+        <div>
           <label for="q3">What content principles should we apply?</label>
           <textarea id="q3" name="q3" rows="3" placeholder="Plain, warm and direct. No jargon. Use 'you' and 'your child' throughout."></textarea>
         </div>
-        <div class="form-group">
+        <div>
           <label for="pdf">Upload a PDF (optional)</label>
           <p class="hint">Policy documents, existing service specs, research findings.</p>
-          <label class="file-upload-label" for="pdf">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 5l4-4 4 4" stroke="#0b0c0c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 11v3h14v-3" stroke="#0b0c0c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Choose file
-          </label>
+          <label class="file-upload-label" for="pdf">Choose file</label>
           <input type="file" id="pdf" name="pdf" accept=".pdf">
           <div class="file-name" id="fileName">No file chosen</div>
         </div>
-        <div class="form-group">
+        <div>
           <label for="url">Reference URL (optional)</label>
           <p class="hint">A live service or document to reference.</p>
           <input type="url" id="url" name="url" placeholder="https://www.gov.uk/example">
         </div>
-        <div class="form-group">
-          <div class="checkbox-row">
-            <input type="checkbox" id="contentReview" name="contentReview" value="true">
+        <div style="margin-bottom: 24px;">
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <input type="checkbox" id="contentReview" name="contentReview" value="true" style="width: auto; min-width: 24px; height: 24px; margin: 0; cursor: pointer;">
             <div>
-              <label for="contentReview" class="checkbox-label">Apply content review</label>
-              <span class="exp-badge">Experimental</span>
+              <label for="contentReview" style="display: inline; font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 0; cursor: pointer;">Apply content review</label>
+              <span style="display: inline-block; margin-left: 8px; padding: 2px 8px; background: #6f3764; color: white; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; line-height: 1.6;">EXPERIMENTAL</span>
               <p class="hint" style="margin-top: 6px; margin-bottom: 0;">Improves question wording, hints, and error messages using GDS content design rules.</p>
             </div>
           </div>
@@ -425,9 +392,8 @@ app.get('/v1', (req, res) => {
             <path d="M0 20h40l-8-8 4-4 16 16-16 16-4-4 8-8H0z"/>
           </svg>
         </button>
-        <p class="form-footer">or <a href="/prototypes">view previously generated prototypes</a></p>
+        <p style="margin-top:12px;font-size:15px;color:#505a5f;">or <a href="/prototypes" style="color:#505a5f;">view previously generated prototypes</a></p>
       </form>
-      </div>
 
       <!-- Progress panel -->
       <div class="progress-panel" id="progressPanel">
@@ -452,8 +418,8 @@ app.get('/v1', (req, res) => {
           <div class="done-title">Your prototype is live</div>
         </div>
         <p class="done-sub">It is ready to use. Share the link with your team.</p>
-        <a href="#" id="openProtoBtn" class="open-proto-btn" target="_blank" rel="noopener">Open prototype &#8594;</a>
-        <div id="pdfTruncatedNotice" class="truncated-notice" style="display:none;">Your document was long so we summarised the most relevant parts. The prototype is based on that summary.</div>
+        <a href="#" id="openProtoBtn" class="open-proto-btn" target="_blank" rel="noopener">Open prototype</a>
+        <div id="pdfTruncatedNotice" style="display:none; margin-top: 20px; padding: 15px 20px; border-left: 10px solid #b1b4b6; font-size: 16px; color: #0b0c0c;">Your document was long so we summarised the most relevant parts. The prototype is based on that summary.</div>
       </div>
 
       <!-- Error panel -->
@@ -793,84 +759,73 @@ app.get('/v2', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Branching Prototypes – Prototype Engine</title>
+  <title>Branching Prototypes — Prototype Engine</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "GDS Transport", arial, sans-serif; background: #f8f8f8; min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
-    main { max-width: 960px; margin: 0 auto; padding: 50px 30px 60px; flex: 1; width: 100%; }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
 
-    h1 { font-size: 42px; font-weight: 700; color: #0b0c0c; line-height: 1.15; margin-bottom: 12px; letter-spacing: -0.5px; }
-    .lede { font-size: 19px; color: #505a5f; margin-bottom: 36px; line-height: 1.5; }
-    .form-card { background: white; border-radius: 12px; padding: 36px 32px 32px; box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.06); }
-    .form-group { margin-bottom: 28px; }
-    label { display: block; font-size: 18px; font-weight: 700; color: #0b0c0c; margin-bottom: 6px; }
-    .hint { font-size: 15px; color: #6f777b; margin-bottom: 8px; line-height: 1.4; }
-    textarea, input[type="text"], input[type="url"] { width: 100%; padding: 12px 14px; font-size: 17px; font-family: inherit; border: 2px solid #b1b4b6; border-radius: 6px; background: white; color: #0b0c0c; transition: border-color 0.15s, box-shadow 0.15s; }
-    textarea:hover, input[type="url"]:hover { border-color: #0b0c0c; }
-    textarea:focus, input:focus { outline: none; border-color: #0b0c0c; box-shadow: 0 0 0 3px #ffdd00; }
-    textarea { resize: vertical; min-height: 72px; }
-    textarea::placeholder, input::placeholder { color: #b1b4b6; }
-    .file-upload-label { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: white; border: 2px solid #b1b4b6; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; color: #0b0c0c; transition: border-color 0.15s, background 0.15s; }
-    .file-upload-label:hover { border-color: #0b0c0c; background: #f8f8f8; }
-    .file-name { font-size: 14px; color: #6f777b; margin-top: 8px; }
+    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 20px; }
+    .lede { font-size: 20px; color: #0b0c0c; margin-bottom: 40px; line-height: 1.5; }
+    label { display: block; font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 8px; }
+    .hint { font-size: 16px; color: #505a5f; margin-bottom: 10px; }
+    textarea, input[type="text"], input[type="url"] { width: 100%; padding: 10px; font-size: 19px; font-family: inherit; border: 2px solid #0b0c0c; border-radius: 0; background: white; color: #0b0c0c; margin-bottom: 24px; }
+    textarea:focus, input:focus { outline: 3px solid #ffdd00; outline-offset: 0; box-shadow: inset 0 0 0 2px #0b0c0c; }
+    textarea { resize: vertical; }
+    .file-upload-label { display: inline-block; padding: 8px 14px; background: #f3f2f1; border: 2px solid #0b0c0c; cursor: pointer; font-size: 16px; margin-bottom: 8px; }
+    .file-name { font-size: 16px; color: #505a5f; margin-bottom: 24px; }
     input[type="file"] { display: none; }
-    .generate-btn { background: #00703c; color: white; border: none; padding: 14px 24px; font-size: 18px; font-weight: 700; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; border-radius: 6px; transition: background 0.15s, box-shadow 0.15s, transform 0.1s; box-shadow: 0 2px 4px rgba(0,112,60,0.2); }
-    .generate-btn:hover { background: #005a30; box-shadow: 0 4px 8px rgba(0,112,60,0.25); transform: translateY(-1px); }
-    .generate-btn:active { transform: translateY(0); box-shadow: 0 1px 2px rgba(0,112,60,0.2); }
-    .generate-btn:focus { outline: 3px solid #ffdd00; outline-offset: 2px; }
-    .generate-btn:disabled { background: #00703c; opacity: 0.7; cursor: wait; transform: none; box-shadow: none; }
-    .btn-arrow { width: 18px; height: 18px; fill: white; }
-    .form-footer { margin-top: 14px; font-size: 15px; color: #6f777b; }
-    .form-footer a { color: #6f777b; transition: color 0.15s; }
-    .form-footer a:hover { color: #1d70b8; }
+    .generate-btn { background: #00703c; color: white; border: none; padding: 13px 22px; font-size: 19px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+    .generate-btn:hover { background: #005a30; }
+    .generate-btn:focus { outline: 3px solid #ffdd00; outline-offset: 0; }
+    .generate-btn:disabled { background: #00703c; opacity: 0.75; cursor: wait; }
+    .btn-arrow { width: 20px; height: 20px; fill: white; }
 
-    /* Progress panel */
-    .progress-panel { display: none; margin-top: 24px; background: white; border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    .progress-panel.visible { display: block; animation: slideIn 0.3s ease; }
-    .progress-bar-track { background: #f0f0f0; height: 6px; margin-bottom: 24px; border-radius: 3px; overflow: hidden; }
-    .progress-bar-fill { height: 6px; background: linear-gradient(90deg, #1d70b8, #2b8cc4); width: 0%; transition: width 0.8s cubic-bezier(0.4,0,0.2,1); border-radius: 3px; }
-    .progress-bar-fill.complete { background: linear-gradient(90deg, #00703c, #28a745); }
+    /* Progress bar */
+    .progress-panel { display: none; margin-top: 24px; background: white; border: 1px solid #d8dde0; border-radius: 6px; padding: 24px; }
+    .progress-panel.visible { display: block; animation: fadeIn 0.2s ease; }
+    .progress-bar-track { background: #f3f2f1; height: 4px; margin-bottom: 24px; border-radius: 2px; overflow: hidden; }
+    .progress-bar-fill { height: 4px; background: #1d70b8; width: 0%; transition: width 0.6s ease; border-radius: 2px; }
+    .progress-bar-fill.complete { background: #00703c; }
     .progress-steps { list-style: none; padding: 0; }
-    .progress-steps li { font-size: 15px; color: #b1b4b6; padding: 10px 0; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid #f5f5f5; transition: color 0.2s; }
+    .progress-steps li { font-size: 14px; color: #b1b4b6; padding: 9px 0; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f3f2f1; transition: color 0.2s; }
     .progress-steps li:last-child { border-bottom: none; }
     .progress-steps li.active { color: #0b0c0c; font-weight: 600; }
     .progress-steps li.done { color: #00703c; }
-    .step-icon { width: 20px; height: 20px; text-align: center; font-size: 13px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-    .progress-steps li.active .step-icon { background: #e8f1f8; color: #1d70b8; font-size: 10px; }
-    .progress-steps li.done .step-icon { background: #e6f4ed; color: #00703c; }
+    .step-icon { width: 16px; text-align: center; font-size: 12px; flex-shrink: 0; }
 
     /* Done panel */
-    .done-panel { display: none; margin-top: 24px; background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,112,60,0.1); border: 1px solid #c1e7d4; }
-    .done-panel.visible { display: block; animation: slideIn 0.4s ease; }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    .done-header { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
-    .done-tick-circle { width: 44px; height: 44px; border-radius: 50%; background: #00703c; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .done-panel { display: none; margin-top: 30px; background: white; border-left: 5px solid #00703c; padding: 24px; }
+    .done-panel.visible { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .done-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .done-tick-circle { width: 40px; height: 40px; border-radius: 50%; background: #00703c; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
     @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-    .done-tick-circle svg { width: 24px; height: 24px; fill: none; stroke: white; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .done-tick-circle svg { width: 22px; height: 22px; fill: none; stroke: white; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
     .done-tick-circle svg path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: drawTick 0.35s ease 0.3s forwards; }
     @keyframes drawTick { to { stroke-dashoffset: 0; } }
     .done-title { font-size: 24px; font-weight: 700; color: #0b0c0c; }
-    .done-sub { font-size: 16px; color: #505a5f; margin-bottom: 20px; line-height: 1.5; }
-    .open-proto-btn { display: inline-flex; align-items: center; gap: 8px; background: #1d70b8; color: white; padding: 13px 22px; font-size: 18px; font-weight: 700; font-family: inherit; text-decoration: none; border-radius: 6px; transition: background 0.15s, box-shadow 0.15s, transform 0.1s; box-shadow: 0 2px 4px rgba(29,112,184,0.2); }
-    .open-proto-btn:hover { background: #003078; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(29,112,184,0.25); }
-    .truncated-notice { margin-top: 20px; padding: 14px 18px; background: #f8f8f8; border-radius: 8px; border: 1px solid #e8e8e8; font-size: 15px; color: #505a5f; line-height: 1.5; }
+    .done-sub { font-size: 16px; color: #505a5f; margin-bottom: 20px; }
+    .open-proto-btn { display: inline-block; background: #1d70b8; color: white; padding: 12px 20px; font-size: 19px; font-weight: 700; font-family: inherit; text-decoration: none; }
+    .open-proto-btn:hover { background: #003078; }
 
     /* Error panel */
-    .error-panel { display: none; margin-top: 24px; background: white; border-radius: 12px; padding: 28px; box-shadow: 0 2px 8px rgba(212,53,28,0.08); border: 1px solid #f6d7d2; }
-    .error-panel.visible { display: block; animation: slideIn 0.3s ease; }
-    .error-title { font-size: 18px; font-weight: 700; color: #d4351c; margin-bottom: 8px; }
-    .error-msg { font-size: 16px; color: #505a5f; line-height: 1.5; }
+    .error-panel { display: none; margin-top: 30px; background: white; border-left: 5px solid #d4351c; padding: 24px; }
+    .error-panel.visible { display: block; }
+    .error-title { font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 8px; }
+    .error-msg { font-size: 16px; color: #505a5f; }
 
     /* Spinner */
     .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    footer { background: #ffffff; padding: 24px 30px; color: #6f777b; font-size: 14px; text-align: center; border-top: 1px solid #e8e8e8; }
-    @media (max-width: 768px) { h1 { font-size: 32px; } .form-card { padding: 24px 20px; } }
+
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
+@media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
 </head>
 <body>
-<header style="background:#e0531a;padding:14px 0;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
     <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
       <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -887,32 +842,28 @@ app.get('/v2', (req, res) => {
 <div style="max-width: 600px;">
     <div>
       <h1>Build a branching prototype</h1>
-      <p class="lede">Describe your service and we'll generate a working prototype with conditional branching, GDS components, and deployment.</p>
-      <div class="form-card">
+      <p class="lede">Describe your service and Claude will build a working GOV.UK prototype with conditional branching — no code required.</p>
       <form id="generateForm" enctype="multipart/form-data">
-        <div class="form-group">
+        <div>
           <label for="q1">Who are the users and what are their needs?</label>
           <textarea id="q1" name="q1" rows="3" placeholder="Parents applying for free school meals. They may be anxious and need to know quickly if they are eligible."></textarea>
         </div>
-        <div class="form-group">
+        <div>
           <label for="q2">What does the service need to achieve?</label>
           <textarea id="q2" name="q2" rows="3" placeholder="Help parents apply quickly. If ineligible, signpost to other support rather than leaving them at a dead end."></textarea>
         </div>
-        <div class="form-group">
+        <div>
           <label for="q3">What content principles should we apply?</label>
           <textarea id="q3" name="q3" rows="3" placeholder="Plain, warm and direct. No jargon. Use 'you' and 'your child' throughout."></textarea>
         </div>
-        <div class="form-group">
+        <div>
           <label for="pdf">Upload a PDF (optional)</label>
           <p class="hint">Policy documents, existing service specs, research findings.</p>
-          <label class="file-upload-label" for="pdf">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 5l4-4 4 4" stroke="#0b0c0c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 11v3h14v-3" stroke="#0b0c0c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Choose file
-          </label>
+          <label class="file-upload-label" for="pdf">Choose file</label>
           <input type="file" id="pdf" name="pdf" accept=".pdf">
           <div class="file-name" id="fileName">No file chosen</div>
         </div>
-        <div class="form-group">
+        <div>
           <label for="url">Reference URL (optional)</label>
           <p class="hint">A live service or document to reference.</p>
           <input type="url" id="url" name="url" placeholder="https://www.gov.uk/example">
@@ -923,9 +874,8 @@ app.get('/v2', (req, res) => {
             <path d="M0 20h40l-8-8 4-4 16 16-16 16-4-4 8-8H0z"/>
           </svg>
         </button>
-        <p class="form-footer">or <a href="/prototypes">view previously generated prototypes</a></p>
+        <p style="margin-top:12px;font-size:15px;color:#505a5f;">or <a href="/prototypes" style="color:#505a5f;">view previously generated prototypes</a></p>
       </form>
-      </div>
 
       <!-- Progress panel -->
       <div class="progress-panel" id="progressPanel">
@@ -950,8 +900,8 @@ app.get('/v2', (req, res) => {
           <div class="done-title">Your prototype is live</div>
         </div>
         <p class="done-sub">It is ready to use. Share the link with your team.</p>
-        <a href="#" id="openProtoBtn" class="open-proto-btn" target="_blank" rel="noopener">Open prototype &#8594;</a>
-        <div id="pdfTruncatedNotice" class="truncated-notice" style="display:none;">Your document was long so we summarised the most relevant parts. The prototype is based on that summary.</div>
+        <a href="#" id="openProtoBtn" class="open-proto-btn" target="_blank" rel="noopener">Open prototype</a>
+        <div id="pdfTruncatedNotice" style="display:none; margin-top: 20px; padding: 15px 20px; border-left: 10px solid #b1b4b6; font-size: 16px; color: #0b0c0c;">Your document was long so we summarised the most relevant parts. The prototype is based on that summary.</div>
       </div>
 
       <!-- Error panel -->
@@ -1284,36 +1234,31 @@ app.get('/prototypes', async (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>All prototypes – Prototype Engine</title>
+  <title>All prototypes — Transform Prototype Engine</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "GDS Transport", arial, sans-serif; background: #f8f8f8; min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
-    main { max-width: 960px; margin: 0 auto; padding: 50px 30px 60px; flex: 1; width: 100%; }
-    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
-    .page-header-left h1 { font-size: 36px; font-weight: 700; color: #0b0c0c; letter-spacing: -0.5px; }
-    .page-header-left p { font-size: 15px; color: #6f777b; margin-top: 4px; }
-    .proto-list { display: flex; flex-direction: column; gap: 8px; }
-    .proto-card { background: white; padding: 22px 26px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.06); transition: box-shadow 0.2s ease, transform 0.2s ease; }
-    .proto-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    main { max-width: 960px; margin: 0 auto; padding: 48px 30px 80px; flex: 1; width: 100%; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+    .page-header-left h1 { font-size: 32px; font-weight: 700; color: #0b0c0c; letter-spacing: -0.5px; }
+    .page-header-left p { font-size: 14px; color: #6f777b; margin-top: 4px; font-weight: 500; }
+    .new-btn { background: #00703c; color: white; text-decoration: none; padding: 10px 18px; font-size: 16px; font-weight: 700; font-family: inherit; white-space: nowrap; }
+    .new-btn:hover { background: #005a30; }
+    .proto-list { display: flex; flex-direction: column; gap: 1px; background: #d8dde0; border: 1px solid #d8dde0; overflow: hidden; }
+    .proto-card { background: white; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 24px; transition: background 0.1s; }
+    .proto-card:hover { background: #f8f8f8; }
     .proto-card-left { flex: 1; min-width: 0; }
-    .proto-name { font-size: 18px; font-weight: 700; color: #0b0c0c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .proto-meta { font-size: 14px; color: #6f777b; margin-top: 4px; }
-    .proto-card-right { flex-shrink: 0; }
-    .open-link { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: #1d70b8; color: white; text-decoration: none; padding: 10px 18px; font-size: 15px; font-weight: 700; font-family: inherit; border-radius: 6px; transition: background 0.15s, box-shadow 0.15s, transform 0.1s; box-shadow: 0 1px 3px rgba(29,112,184,0.15); }
-    .open-link:hover { background: #003078; transform: translateY(-1px); box-shadow: 0 3px 6px rgba(29,112,184,0.2); }
-    .empty-state { background: white; border: 1px solid rgba(0,0,0,0.06); border-radius: 12px; padding: 60px 30px; text-align: center; color: #6f777b; font-size: 17px; }
-    .pagination { display: flex; align-items: center; justify-content: space-between; margin-top: 24px; font-size: 15px; }
-    .pagination a { color: #1d70b8; font-weight: 700; text-decoration: none; padding: 8px 14px; border-radius: 6px; transition: background 0.15s; }
-    .pagination a:hover { background: #e8f1f8; }
-    .pagination .page-info { color: #6f777b; }
-    .back-link { margin-top: 24px; font-size: 15px; }
-    .back-link a { color: #6f777b; text-decoration: none; transition: color 0.15s; }
-    .back-link a:hover { color: #1d70b8; }
-    footer { background: #ffffff; padding: 24px 30px; color: #6f777b; font-size: 14px; text-align: center; border-top: 1px solid #e8e8e8; }
+    .proto-name { font-size: 19px; font-weight: 700; color: #0b0c0c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .proto-meta { font-size: 16px; color: #505a5f; margin-top: 3px; }
+    .proto-card-right { flex-shrink: 0; width: 160px; display: flex; justify-content: flex-end; }
+    .open-link { display: inline-flex; align-items: center; justify-content: center; width: 160px; background: #1d70b8; color: white; text-decoration: none; padding: 10px 0; font-size: 16px; font-weight: 700; font-family: inherit; }
+    .open-link:hover { background: #003078; }
+    .empty-state { background: white; border: 1px solid #b1b4b6; padding: 60px 30px; text-align: center; color: #505a5f; font-size: 16px; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
   </style>
 </head>
 <body>
-<header style="background:#e0531a;padding:14px 0;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
     <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
       <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1342,19 +1287,19 @@ app.get('/prototypes', async (req, res) => {
             '<div class="proto-meta">' + timeAgo(entry.createdAt) + '</div>' +
           '</div>' +
           '<div class="proto-card-right">' +
-            '<a href="' + entry.url + '" target="_blank" rel="noopener" class="open-link">Open &#8594;</a>' +
+            '<a href="' + entry.url + '" target="_blank" rel="noopener" class="open-link">Open prototype</a>' +
           '</div>' +
         '</div>';
       }).join('') + '</div>'
   }
-  ${totalPages > 1 ? '<nav class="pagination">' +
-    (currentPage > 1 ? '<a href="/prototypes?page=' + (currentPage - 1) + '">&larr; Newer</a>' : '<span></span>') +
-    '<span class="page-info">Page ' + currentPage + ' of ' + totalPages + '</span>' +
-    (currentPage < totalPages ? '<a href="/prototypes?page=' + (currentPage + 1) + '">Older &rarr;</a>' : '<span></span>') +
+  ${totalPages > 1 ? '<nav style="display:flex;align-items:center;justify-content:space-between;margin-top:24px;font-size:16px;font-family:\'GDS Transport\',arial,sans-serif;">' +
+    (currentPage > 1 ? '<a href="/prototypes?page=' + (currentPage - 1) + '" style="color:#1d70b8;font-weight:700;text-decoration:none;">&larr; Newer</a>' : '<span></span>') +
+    '<span style="color:#505a5f;">Page ' + currentPage + ' of ' + totalPages + '</span>' +
+    (currentPage < totalPages ? '<a href="/prototypes?page=' + (currentPage + 1) + '" style="color:#1d70b8;font-weight:700;text-decoration:none;">Older &rarr;</a>' : '<span></span>') +
     '</nav>' : ''}
-  <p class="back-link"><a href="/">&larr; Back</a></p>
+  <p style="margin-top:24px;font-size:15px;"><a href="/" style="color:#505a5f;">← Back</a></p>
 </main>
-<footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
+<footer>GOV.UK Prototype Kit v13 &middot; Powered by Claude Sonnet</footer>
 </body>
 </html>`);
 });
@@ -1364,23 +1309,23 @@ app.get('/prototypes', async (req, res) => {
 function renderDesignHistoryEntry(entry) {
   var whatChangedHtml = '';
   if (entry.whatChanged && entry.whatChanged.length > 0) {
-    whatChangedHtml = '<ul style="font-size:18px;line-height:1.7;padding-left:20px;margin-top:10px;color:#0b0c0c;">' +
-      entry.whatChanged.map(function(item) { return '<li style="margin-bottom:4px;">' + item + '</li>'; }).join('') +
+    whatChangedHtml = '<ul style="font-size:19px;line-height:1.6;padding-left:20px;margin-top:10px;">' +
+      entry.whatChanged.map(function(item) { return '<li>' + item + '</li>'; }).join('') +
       '</ul>';
   } else {
-    whatChangedHtml = '<p style="font-size:18px;line-height:1.6;color:#6f777b;">None yet.</p>';
+    whatChangedHtml = '<p style="font-size:19px;line-height:1.6;color:#505a5f;">None yet.</p>';
   }
-  return '<div style="margin-bottom:40px;padding:32px;background:white;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05);border:1px solid rgba(0,0,0,0.06);">' +
-    '<h2 style="font-size:30px;font-weight:700;color:#0b0c0c;margin-bottom:6px;letter-spacing:-0.3px;">' + entry.title + '</h2>' +
-    '<p style="font-size:14px;color:#6f777b;margin-bottom:28px;">Last updated: ' + entry.date + '</p>' +
-    '<h3 style="font-size:22px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">Problem</h3>' +
-    '<p style="font-size:18px;line-height:1.6;margin-bottom:28px;color:#0b0c0c;">' + entry.problem + '</p>' +
-    '<h3 style="font-size:22px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">Our approach</h3>' +
-    '<p style="font-size:18px;line-height:1.6;margin-bottom:28px;color:#0b0c0c;">' + entry.approach + '</p>' +
-    '<h3 style="font-size:22px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">What changed</h3>' +
-    '<div style="margin-bottom:28px;">' + whatChangedHtml + '</div>' +
-    '<h3 style="font-size:22px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">Next steps</h3>' +
-    '<p style="font-size:18px;line-height:1.6;color:#0b0c0c;">' + entry.nextSteps + '</p>' +
+  return '<div style="margin-bottom:50px;padding-bottom:50px;border-bottom:1px solid #b1b4b6;">' +
+    '<h2 style="font-size:36px;font-weight:700;color:#0b0c0c;margin-bottom:5px;">' + entry.title + '</h2>' +
+    '<p style="font-size:16px;color:#505a5f;margin-bottom:30px;">Last updated: ' + entry.date + '</p>' +
+    '<h3 style="font-size:24px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">Problem</h3>' +
+    '<p style="font-size:19px;line-height:1.6;margin-bottom:30px;">' + entry.problem + '</p>' +
+    '<h3 style="font-size:24px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">Our approach</h3>' +
+    '<p style="font-size:19px;line-height:1.6;margin-bottom:30px;">' + entry.approach + '</p>' +
+    '<h3 style="font-size:24px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">What changed</h3>' +
+    '<div style="margin-bottom:30px;">' + whatChangedHtml + '</div>' +
+    '<h3 style="font-size:24px;font-weight:700;color:#0b0c0c;margin-bottom:10px;">Next steps</h3>' +
+    '<p style="font-size:19px;line-height:1.6;">' + entry.nextSteps + '</p>' +
   '</div>';
 }
 
@@ -1398,23 +1343,23 @@ app.get('/design-history', (req, res) => {
   <title>Design history – Prototype Engine</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "GDS Transport", arial, sans-serif; background: #f8f8f8; min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
-    main { max-width: 960px; margin: 0 auto; padding: 50px 30px 60px; flex: 1; width: 100%; }
-    h1 { font-size: 42px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 8px; letter-spacing: -0.5px; }
-    .lede { font-size: 19px; color: #505a5f; margin-bottom: 36px; line-height: 1.5; }
-    .version-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
-    .version-card { background: white; padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.06); transition: box-shadow 0.2s ease, transform 0.2s ease; }
-    .version-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
+    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 10px; }
+    .lede { font-size: 20px; color: #0b0c0c; margin-bottom: 40px; line-height: 1.5; }
+    .version-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 1px; background: #d8dde0; border: 1px solid #d8dde0; }
+    .version-card { background: white; padding: 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .version-card:hover { background: #f8f8f8; }
     .version-info { flex: 1; }
-    .version-name { font-size: 20px; font-weight: 700; color: #1d70b8; text-decoration: none; transition: color 0.15s; }
-    .version-name:hover { color: #003078; }
-    .version-date { font-size: 14px; color: #6f777b; margin-top: 4px; }
-    footer { background: #ffffff; padding: 24px 30px; color: #6f777b; font-size: 14px; text-align: center; border-top: 1px solid #e8e8e8; }
+    .version-name { font-size: 24px; font-weight: 700; color: #1d70b8; text-decoration: none; }
+    .version-name:hover { text-decoration: underline; }
+    .version-date { font-size: 16px; color: #505a5f; margin-top: 4px; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
     @media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
 </head>
 <body>
-<header style="background:#e0531a;padding:14px 0;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
     <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
       <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1459,17 +1404,14 @@ app.get('/design-history/:version', (req, res) => {
   <title>${data.version}: ${data.title} – Design history – Prototype Engine</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "GDS Transport", arial, sans-serif; background: #f8f8f8; min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
-    main { max-width: 960px; margin: 0 auto; padding: 50px 30px 60px; flex: 1; width: 100%; }
-    .back-link { font-size: 15px; margin-bottom: 24px; }
-    .back-link a { color: #6f777b; text-decoration: none; transition: color 0.15s; }
-    .back-link a:hover { color: #1d70b8; }
-    footer { background: #ffffff; padding: 24px 30px; color: #6f777b; font-size: 14px; text-align: center; border-top: 1px solid #e8e8e8; }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
     @media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
 </head>
 <body>
-<header style="background:#e0531a;padding:14px 0;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
     <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
       <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1483,8 +1425,8 @@ app.get('/design-history/:version', (req, res) => {
   </div>
 </header>
 <main>
-  <p class="back-link"><a href="/design-history">&larr; Back to design history</a></p>
-  <h1 style="font-size:42px;font-weight:700;color:#0b0c0c;line-height:1.15;margin-bottom:36px;letter-spacing:-0.5px;">${data.version}: ${data.title}</h1>
+  <p style="font-size:16px;margin-bottom:20px;"><a href="/design-history" style="color:#1d70b8;">&larr; Back to design history</a></p>
+  <h1 style="font-size:48px;font-weight:700;color:#0b0c0c;line-height:1.1;margin-bottom:40px;">${data.version}: ${data.title}</h1>
   ${entriesHtml}
 </main>
 <footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
@@ -1501,21 +1443,21 @@ app.get('/roadmap', (req, res) => {
   <title>How the tool works – Prototype Engine</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: "GDS Transport", arial, sans-serif; background: #f8f8f8; min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
-    main { max-width: 960px; margin: 0 auto; padding: 50px 30px 60px; flex: 1; width: 100%; }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
     .govuk-width-container { max-width: 640px; }
-    .govuk-heading-l { font-size: 42px; font-weight: 700; color: #0b0c0c; line-height: 1.15; margin-bottom: 30px; letter-spacing: -0.5px; }
-    .govuk-heading-m { font-size: 24px; font-weight: 700; color: #0b0c0c; margin-top: 40px; margin-bottom: 15px; }
-    .govuk-body { font-size: 18px; color: #0b0c0c; line-height: 1.6; margin-bottom: 20px; }
-    .govuk-list { font-size: 18px; color: #0b0c0c; line-height: 1.7; margin-bottom: 20px; padding-left: 0; list-style: none; }
+    .govuk-heading-l { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 30px; }
+    .govuk-heading-m { font-size: 27px; font-weight: 700; color: #0b0c0c; margin-top: 40px; margin-bottom: 15px; }
+    .govuk-body { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 20px; }
+    .govuk-list { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 20px; padding-left: 0; list-style: none; }
     .govuk-list--bullet { padding-left: 20px; list-style-type: disc; }
     .govuk-list--bullet li { margin-bottom: 5px; }
-    footer { background: #ffffff; padding: 24px 30px; color: #6f777b; font-size: 14px; text-align: center; border-top: 1px solid #e8e8e8; }
-    @media (max-width: 768px) { .govuk-heading-l { font-size: 32px; } .govuk-heading-m { font-size: 20px; } }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
+    @media (max-width: 768px) { .govuk-heading-l { font-size: 32px; } .govuk-heading-m { font-size: 22px; } }
   </style>
 </head>
 <body>
-<header style="background:#e0531a;padding:14px 0;">
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
     <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
       <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
