@@ -124,6 +124,9 @@ async function pollUntilLive(protoUrl, maxWaitMs = 300000) {
 const LOG_REPO = 'proto-engine-0x';
 const LOG_FILE = 'prototypes-log.json';
 
+// v3 demo cutoff — prototypes created before this date appear on page 2+
+const V3_DEMO_CUTOFF = '2025-03-25T00:00:00.000Z';
+
 async function appendToLog(entry, owner, token) {
   let existingLog = [];
   let sha = null;
@@ -184,9 +187,9 @@ app.get('/', (req, res) => {
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
     main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
-    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 10px; }
-    .strapline { font-size: 24px; color: #0b0c0c; margin-bottom: 36px; line-height: 1.4; }
-    .hero-img { display: block; max-width: 480px; width: 100%; height: auto; margin-bottom: 36px; }
+    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 8px; }
+    .strapline { font-size: 24px; color: #6f777b; margin-bottom: 6px; line-height: 1.4; }
+    .hero-img { display: block; max-width: 420px; width: 100%; height: auto; margin-bottom: 28px; margin-left: -68px; }
     .intro { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 12px; }
     .feature-list { font-size: 19px; color: #0b0c0c; line-height: 1.8; padding-left: 20px; margin-bottom: 32px; }
     .feature-list li { margin-bottom: 4px; }
@@ -217,12 +220,11 @@ app.get('/', (req, res) => {
 
   <img src="/proto_1.png" alt="A GOV.UK prototype shown on desktop and mobile" class="hero-img">
 
-  <p class="intro">Prototype Engine builds working GOV.UK prototypes from a plain English brief. It can:</p>
+  <p class="intro">It can:</p>
   <ul class="feature-list">
-    <li>Generate a complete prototype with GDS components and validation</li>
-    <li>Handle branching journeys where different answers lead to different pages</li>
-    <li>Deploy automatically to a shareable URL</li>
-    <li>Work without writing any code</li>
+    <li>Generate a working prototype from a plain English brief</li>
+    <li>Handle branching journeys with conditional routing</li>
+    <li>Deploy to a shareable URL — no code required</li>
   </ul>
 
   <a href="/v3" class="start-btn">Get started</a>
@@ -1694,14 +1696,29 @@ app.post('/generate-v3', upload.single('pdf'), async (req, res) => {
 app.get('/prototypes', async (req, res) => {
   const githubToken = process.env.GITHUB_TOKEN;
   const githubUsername = process.env.GITHUB_USERNAME;
-  const log = await getLog(githubUsername, githubToken);
+  const fullLog = await getLog(githubUsername, githubToken);
 
-  const pageSize = 10;
+  // Split into new (after cutoff, page 1) and old (before cutoff, page 2+)
+  const newProtos = fullLog.filter(e => e.createdAt >= V3_DEMO_CUTOFF);
+  const oldProtos = fullLog.filter(e => e.createdAt < V3_DEMO_CUTOFF);
+
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-  const totalPages = Math.max(1, Math.ceil(log.length / pageSize));
-  const currentPage = Math.min(page, totalPages);
-  const start = (currentPage - 1) * pageSize;
-  const pageLog = log.slice(start, start + pageSize);
+  const pageSize = 10;
+  let log, pageLog, totalPages, currentPage;
+
+  if (page === 1) {
+    log = fullLog;
+    pageLog = newProtos;
+    totalPages = Math.max(1, 1 + Math.ceil(oldProtos.length / pageSize));
+    currentPage = 1;
+  } else {
+    log = fullLog;
+    const oldPage = page - 1; // page 2 = first page of old protos
+    totalPages = Math.max(1, 1 + Math.ceil(oldProtos.length / pageSize));
+    currentPage = Math.min(page, totalPages);
+    const start = (oldPage - 1) * pageSize;
+    pageLog = oldProtos.slice(start, start + pageSize);
+  }
 
   function timeAgo(iso) {
     const diff = Date.now() - new Date(iso).getTime();
