@@ -187,9 +187,9 @@ app.get('/', (req, res) => {
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
     main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
-    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 10px; }
-    .strapline { font-size: 24px; color: #0b0c0c; margin-bottom: 36px; line-height: 1.4; }
-    .hero-img { display: block; max-width: 480px; width: 100%; height: auto; margin-bottom: 36px; }
+    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 8px; }
+    .strapline { font-size: 24px; color: #6f777b; margin-bottom: 20px; line-height: 1.4; }
+    .hero-img { display: block; max-width: 420px; width: 100%; height: auto; margin-bottom: 36px; margin-left: -52px; }
     .intro { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 12px; }
     .feature-list { font-size: 19px; color: #0b0c0c; line-height: 1.8; padding-left: 20px; margin-bottom: 32px; }
     .feature-list li { margin-bottom: 4px; }
@@ -220,12 +220,10 @@ app.get('/', (req, res) => {
 
   <img src="/proto_1.png" alt="A GOV.UK prototype shown on desktop and mobile" class="hero-img">
 
-  <p class="intro">Prototype Engine builds working GOV.UK prototypes from a plain English brief. It can:</p>
+  <p class="intro">Describe your service in plain English and get a working GOV.UK prototype.</p>
   <ul class="feature-list">
-    <li>Generate a complete prototype with GDS components and validation</li>
-    <li>Handle branching journeys where different answers lead to different pages</li>
-    <li>Deploy automatically to a shareable URL</li>
-    <li>Work without writing any code</li>
+    <li>Generates pages, routing, and validation using GDS components</li>
+    <li>Deploys to a shareable URL — no code required</li>
   </ul>
 
   <a href="/v3" class="start-btn">Get started</a>
