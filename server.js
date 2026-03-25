@@ -124,6 +124,9 @@ async function pollUntilLive(protoUrl, maxWaitMs = 300000) {
 const LOG_REPO = 'proto-engine-0x';
 const LOG_FILE = 'prototypes-log.json';
 
+// v3 demo cutoff — prototypes created before this date appear on page 2+
+const V3_DEMO_CUTOFF = '2025-03-25T00:00:00.000Z';
+
 async function appendToLog(entry, owner, token) {
   let existingLog = [];
   let sha = null;
@@ -1694,14 +1697,29 @@ app.post('/generate-v3', upload.single('pdf'), async (req, res) => {
 app.get('/prototypes', async (req, res) => {
   const githubToken = process.env.GITHUB_TOKEN;
   const githubUsername = process.env.GITHUB_USERNAME;
-  const log = await getLog(githubUsername, githubToken);
+  const fullLog = await getLog(githubUsername, githubToken);
 
-  const pageSize = 10;
+  // Split into new (after cutoff, page 1) and old (before cutoff, page 2+)
+  const newProtos = fullLog.filter(e => e.createdAt >= V3_DEMO_CUTOFF);
+  const oldProtos = fullLog.filter(e => e.createdAt < V3_DEMO_CUTOFF);
+
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
-  const totalPages = Math.max(1, Math.ceil(log.length / pageSize));
-  const currentPage = Math.min(page, totalPages);
-  const start = (currentPage - 1) * pageSize;
-  const pageLog = log.slice(start, start + pageSize);
+  const pageSize = 10;
+  let log, pageLog, totalPages, currentPage;
+
+  if (page === 1) {
+    log = fullLog;
+    pageLog = newProtos;
+    totalPages = Math.max(1, 1 + Math.ceil(oldProtos.length / pageSize));
+    currentPage = 1;
+  } else {
+    log = fullLog;
+    const oldPage = page - 1; // page 2 = first page of old protos
+    totalPages = Math.max(1, 1 + Math.ceil(oldProtos.length / pageSize));
+    currentPage = Math.min(page, totalPages);
+    const start = (oldPage - 1) * pageSize;
+    pageLog = oldProtos.slice(start, start + pageSize);
+  }
 
   function timeAgo(iso) {
     const diff = Date.now() - new Date(iso).getTime();
