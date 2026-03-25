@@ -189,7 +189,7 @@ app.get('/', (req, res) => {
     main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
     h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 8px; }
     .strapline { font-size: 24px; color: #6f777b; margin-bottom: 6px; line-height: 1.4; }
-    .hero-img { display: block; max-width: 420px; width: 100%; height: auto; margin-bottom: 28px; margin-left: -68px; }
+    .hero-img { display: block; max-width: 420px; width: 100%; height: auto; margin-bottom: 12px; margin-left: -68px; }
     .intro { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 12px; }
     .feature-list { font-size: 19px; color: #0b0c0c; line-height: 1.8; padding-left: 20px; margin-bottom: 32px; }
     .feature-list li { margin-bottom: 4px; }
@@ -223,8 +223,8 @@ app.get('/', (req, res) => {
   <p class="intro">It can:</p>
   <ul class="feature-list">
     <li>Generate a working prototype from a plain English brief</li>
-    <li>Handle branching journeys with conditional routing</li>
-    <li>Deploy to a shareable URL — no code required</li>
+    <li>Handle multiple user journeys</li>
+    <li>Create a shareable link for your colleagues</li>
   </ul>
 
   <a href="/v3" class="start-btn">Get started</a>
