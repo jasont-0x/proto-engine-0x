@@ -189,7 +189,7 @@ app.get('/', (req, res) => {
     main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
     h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 8px; }
     .strapline { font-size: 24px; color: #6f777b; margin-bottom: 6px; line-height: 1.4; }
-    .hero-img { display: block; max-width: 420px; width: 100%; height: auto; margin-bottom: 28px; margin-left: -68px; }
+    .hero-img { display: block; max-width: 420px; width: 100%; height: auto; margin-bottom: 12px; margin-left: -68px; }
     .intro { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 12px; }
     .feature-list { font-size: 19px; color: #0b0c0c; line-height: 1.8; padding-left: 20px; margin-bottom: 32px; }
     .feature-list li { margin-bottom: 4px; }
@@ -223,8 +223,8 @@ app.get('/', (req, res) => {
   <p class="intro">It can:</p>
   <ul class="feature-list">
     <li>Generate a working prototype from a plain English brief</li>
-    <li>Handle branching journeys with conditional routing</li>
-    <li>Deploy to a shareable URL — no code required</li>
+    <li>Handle multiple user journeys</li>
+    <li>Create a shareable link for your colleagues</li>
   </ul>
 
   <a href="/v3" class="start-btn">Get started</a>
@@ -397,15 +397,15 @@ app.get('/v1', (req, res) => {
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="q1">Who are the users and what are their needs?</label>
-          <textarea id="q1" name="q1" rows="3" placeholder="Parents applying for free school meals. They may be anxious and need to know quickly if they are eligible."></textarea>
+          <textarea id="q1" name="q1" rows="3" placeholder="e.g. Parents applying for free school meals"></textarea>
         </div>
         <div>
           <label for="q2">What does the service need to achieve?</label>
-          <textarea id="q2" name="q2" rows="3" placeholder="Help parents apply quickly. If ineligible, signpost to other support rather than leaving them at a dead end."></textarea>
+          <textarea id="q2" name="q2" rows="3" placeholder="e.g. Help parents check eligibility and apply"></textarea>
         </div>
         <div>
           <label for="q3">What content principles should we apply?</label>
-          <textarea id="q3" name="q3" rows="3" placeholder="Plain, warm and direct. No jargon. Use 'you' and 'your child' throughout."></textarea>
+          <textarea id="q3" name="q3" rows="3" placeholder="e.g. Plain English, no jargon"></textarea>
         </div>
         <div>
           <label for="pdf">Upload a PDF (optional)</label>
@@ -889,15 +889,15 @@ app.get('/v2', (req, res) => {
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="q1">Who are the users and what are their needs?</label>
-          <textarea id="q1" name="q1" rows="3" placeholder="Parents applying for free school meals. They may be anxious and need to know quickly if they are eligible."></textarea>
+          <textarea id="q1" name="q1" rows="3" placeholder="e.g. Parents applying for free school meals"></textarea>
         </div>
         <div>
           <label for="q2">What does the service need to achieve?</label>
-          <textarea id="q2" name="q2" rows="3" placeholder="Help parents apply quickly. If ineligible, signpost to other support rather than leaving them at a dead end."></textarea>
+          <textarea id="q2" name="q2" rows="3" placeholder="e.g. Help parents check eligibility and apply"></textarea>
         </div>
         <div>
           <label for="q3">What content principles should we apply?</label>
-          <textarea id="q3" name="q3" rows="3" placeholder="Plain, warm and direct. No jargon. Use 'you' and 'your child' throughout."></textarea>
+          <textarea id="q3" name="q3" rows="3" placeholder="e.g. Plain English, no jargon"></textarea>
         </div>
         <div>
           <label for="pdf">Upload a PDF (optional)</label>
@@ -1341,15 +1341,15 @@ app.get('/v3', (req, res) => {
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="q1">Who are the users and what are their needs?</label>
-          <textarea id="q1" name="q1" rows="3" placeholder="Parents applying for free school meals. They may be anxious and need to know quickly if they are eligible."></textarea>
+          <textarea id="q1" name="q1" rows="3" placeholder="e.g. Parents applying for free school meals"></textarea>
         </div>
         <div>
           <label for="q2">What does the service need to achieve?</label>
-          <textarea id="q2" name="q2" rows="3" placeholder="Help parents apply quickly. If ineligible, signpost to other support rather than leaving them at a dead end."></textarea>
+          <textarea id="q2" name="q2" rows="3" placeholder="e.g. Help parents check eligibility and apply"></textarea>
         </div>
         <div>
           <label for="q3">What content principles should we apply?</label>
-          <textarea id="q3" name="q3" rows="3" placeholder="Plain, warm and direct. No jargon. Use 'you' and 'your child' throughout."></textarea>
+          <textarea id="q3" name="q3" rows="3" placeholder="e.g. Plain English, no jargon"></textarea>
         </div>
         <div>
           <label for="pdf">Upload a PDF (optional)</label>
