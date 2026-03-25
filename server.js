@@ -15,6 +15,7 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── GitHub helpers ───────────────────────────────────────────────────────────
 
@@ -170,7 +171,7 @@ async function getLog(owner, token) {
   }
 }
 
-// ─── Launcher ─────────────────────────────────────────────────────────────────
+// ─── v3 Landing page (demo) ───────────────────────────────────────────────────
 
 app.get('/', (req, res) => {
   res.send(`<!DOCTYPE html>
@@ -179,6 +180,67 @@ app.get('/', (req, res) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prototype Engine</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
+    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 10px; }
+    .strapline { font-size: 24px; color: #0b0c0c; margin-bottom: 36px; line-height: 1.4; }
+    .hero-img { display: block; max-width: 480px; width: 100%; height: auto; margin-bottom: 36px; }
+    .intro { font-size: 19px; color: #0b0c0c; line-height: 1.6; margin-bottom: 12px; }
+    .feature-list { font-size: 19px; color: #0b0c0c; line-height: 1.8; padding-left: 20px; margin-bottom: 32px; }
+    .feature-list li { margin-bottom: 4px; }
+    .start-btn { display: inline-block; background: #00703c; color: white; padding: 12px 22px; font-size: 19px; font-weight: 700; font-family: inherit; text-decoration: none; border: none; cursor: pointer; }
+    .start-btn:hover { background: #005a30; }
+    .start-btn:focus { outline: 3px solid #ffdd00; outline-offset: 0; }
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
+    @media (max-width: 768px) { h1 { font-size: 32px; } .strapline { font-size: 20px; } .hero-img { max-width: 100%; } }
+  </style>
+</head>
+<body>
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
+  <div style="max-width:960px;margin:0 auto;padding:0 30px;">
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="11" height="11" fill="white"/>
+        <rect x="13" y="0" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="0" y="13" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="13" y="13" width="11" height="11" fill="white"/>
+      </svg>
+      <span style="color:white;font-size:15px;font-weight:700;font-family:arial,sans-serif;letter-spacing:-0.3px;">Prototype Engine</span>
+    </a>
+  </div>
+</header>
+<main>
+  <h1>Prototype Engine</h1>
+  <p class="strapline">Create a proof of concept prototype in 5 minutes</p>
+
+  <img src="/proto_1.png" alt="A GOV.UK prototype shown on desktop and mobile" class="hero-img">
+
+  <p class="intro">Prototype Engine builds working GOV.UK prototypes from a plain English brief. It can:</p>
+  <ul class="feature-list">
+    <li>Generate a complete prototype with GDS components and validation</li>
+    <li>Handle branching journeys where different answers lead to different pages</li>
+    <li>Deploy automatically to a shareable URL</li>
+    <li>Work without writing any code</li>
+  </ul>
+
+  <a href="/v3" class="start-btn">Get started</a>
+</main>
+<footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
+</body>
+</html>`);
+});
+
+// ─── Old launcher (hidden, accessible at /launcher) ──────────────────────────
+
+app.get('/launcher', (req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype Engine – Launcher</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
@@ -198,20 +260,12 @@ app.get('/', (req, res) => {
     footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
     @media (max-width: 768px) { h1 { font-size: 32px; } }
   </style>
-<style>
-  @keyframes pe-logo-in {
-    0% { opacity:0; transform:scale(0.7) rotate(-8deg); }
-    60% { transform:scale(1.08) rotate(2deg); }
-    100% { opacity:1; transform:scale(1) rotate(0deg); }
-  }
-  .pe-logo { animation: pe-logo-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
-</style>
 </head>
 <body>
 <header style="background:#e0531a;padding:12px 0;border-bottom:none;">
   <div style="max-width:960px;margin:0 auto;padding:0 30px;">
-    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
-      <svg class="pe-logo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <a href="/launcher" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="0" y="0" width="11" height="11" fill="white"/>
         <rect x="13" y="0" width="11" height="11" fill="white" fill-opacity="0.5"/>
         <rect x="0" y="13" width="11" height="11" fill="white" fill-opacity="0.5"/>
@@ -240,19 +294,6 @@ app.get('/', (req, res) => {
       <span class="badge badge--beta">Beta</span>
     </li>
   </ul>
-  <details class="govuk-details" style="margin-top:30px;font-size:16px;color:#0b0c0c;">
-    <summary class="govuk-details__summary" style="cursor:pointer;color:#1d70b8;font-size:16px;">
-      <span class="govuk-details__summary-text" style="text-decoration:underline;">Product roadmap</span>
-    </summary>
-    <div class="govuk-details__text" style="padding:15px;border-left:5px solid #b1b4b6;margin-top:5px;">
-      <p class="govuk-body" style="font-size:16px;margin-bottom:15px;line-height:1.5;">Each version adds new capabilities to the prototype generator. We release one version at a time, test it for stability, then build the next. This means the stable version is always available while new features are tested.</p>
-      <ul style="font-size:16px;line-height:1.8;padding-left:20px;">
-        <li>v1 — Simple linear prototypes (stable)</li>
-        <li>v2 — Branching and conditional routing (beta)</li>
-        <li>v3 — Additional GDS patterns: task lists, interruption cards, content pages (planned)</li>
-      </ul>
-    </div>
-  </details>
 </main>
 <footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
 </body>
@@ -1183,6 +1224,450 @@ app.post('/generate-v2', upload.single('pdf'), async (req, res) => {
     if (!serviceId) throw new Error('Render did not return a service ID');
 
     // Step 4: Poll until actually live
+    const protoUrl = `https://${serviceName}.onrender.com`;
+    await pollUntilLive(protoUrl);
+    await new Promise(r => setTimeout(r, 20000));
+
+    // Log it (fire and forget)
+    appendToLog({
+      serviceName: spec.serviceName,
+      brief: brief.trim().slice(0, 120),
+      url: protoUrl,
+      repoUrl,
+      createdAt: new Date().toISOString()
+    }, githubUsername, githubToken).catch(e => console.error('Log write failed:', e));
+
+    res.json({ url: protoUrl, repoUrl, pdfTruncated });
+
+  } catch (err) {
+    console.error(err);
+    if (!res.headersSent) res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── v3 Frontend ──────────────────────────────────────────────────────────────
+
+app.get('/v3', (req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Build a prototype – Prototype Engine</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "GDS Transport", arial, sans-serif; background: #f3f2f1; min-height: 100vh; display: flex; flex-direction: column; }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 30px; flex: 1; width: 100%; }
+
+    h1 { font-size: 48px; font-weight: 700; color: #0b0c0c; line-height: 1.1; margin-bottom: 20px; }
+    .lede { font-size: 20px; color: #0b0c0c; margin-bottom: 40px; line-height: 1.5; }
+    label { display: block; font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 8px; }
+    .hint { font-size: 16px; color: #505a5f; margin-bottom: 10px; }
+    textarea, input[type="text"], input[type="url"] { width: 100%; padding: 10px; font-size: 19px; font-family: inherit; border: 2px solid #0b0c0c; border-radius: 0; background: white; color: #0b0c0c; margin-bottom: 24px; }
+    textarea:focus, input:focus { outline: 3px solid #ffdd00; outline-offset: 0; box-shadow: inset 0 0 0 2px #0b0c0c; }
+    textarea { resize: vertical; }
+    .file-upload-label { display: inline-block; padding: 8px 14px; background: #f3f2f1; border: 2px solid #0b0c0c; cursor: pointer; font-size: 16px; margin-bottom: 8px; }
+    .file-name { font-size: 16px; color: #505a5f; margin-bottom: 24px; }
+    input[type="file"] { display: none; }
+    .generate-btn { background: #00703c; color: white; border: none; padding: 13px 22px; font-size: 19px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+    .generate-btn:hover { background: #005a30; }
+    .generate-btn:focus { outline: 3px solid #ffdd00; outline-offset: 0; }
+    .generate-btn:disabled { background: #00703c; opacity: 0.75; cursor: wait; }
+    .btn-arrow { width: 20px; height: 20px; fill: white; }
+
+    /* Progress bar */
+    .progress-panel { display: none; margin-top: 24px; background: white; border: 1px solid #d8dde0; border-radius: 6px; padding: 24px; }
+    .progress-panel.visible { display: block; animation: fadeIn 0.2s ease; }
+    .progress-bar-track { background: #f3f2f1; height: 4px; margin-bottom: 24px; border-radius: 2px; overflow: hidden; }
+    .progress-bar-fill { height: 4px; background: #1d70b8; width: 0%; transition: width 0.6s ease; border-radius: 2px; }
+    .progress-bar-fill.complete { background: #00703c; }
+    .progress-steps { list-style: none; padding: 0; }
+    .progress-steps li { font-size: 14px; color: #b1b4b6; padding: 9px 0; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f3f2f1; transition: color 0.2s; }
+    .progress-steps li:last-child { border-bottom: none; }
+    .progress-steps li.active { color: #0b0c0c; font-weight: 600; }
+    .progress-steps li.done { color: #00703c; }
+    .step-icon { width: 16px; text-align: center; font-size: 12px; flex-shrink: 0; }
+
+    /* Done panel */
+    .done-panel { display: none; margin-top: 30px; background: white; border-left: 5px solid #00703c; padding: 24px; }
+    .done-panel.visible { display: block; animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .done-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .done-tick-circle { width: 40px; height: 40px; border-radius: 50%; background: #00703c; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+    @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+    .done-tick-circle svg { width: 22px; height: 22px; fill: none; stroke: white; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .done-tick-circle svg path { stroke-dasharray: 40; stroke-dashoffset: 40; animation: drawTick 0.35s ease 0.3s forwards; }
+    @keyframes drawTick { to { stroke-dashoffset: 0; } }
+    .done-title { font-size: 24px; font-weight: 700; color: #0b0c0c; }
+    .done-sub { font-size: 16px; color: #505a5f; margin-bottom: 20px; }
+    .open-proto-btn { display: inline-block; background: #1d70b8; color: white; padding: 12px 20px; font-size: 19px; font-weight: 700; font-family: inherit; text-decoration: none; }
+    .open-proto-btn:hover { background: #003078; }
+
+    /* Error panel */
+    .error-panel { display: none; margin-top: 30px; background: white; border-left: 5px solid #d4351c; padding: 24px; }
+    .error-panel.visible { display: block; }
+    .error-title { font-size: 19px; font-weight: 700; color: #0b0c0c; margin-bottom: 8px; }
+    .error-msg { font-size: 16px; color: #505a5f; }
+
+    /* Spinner */
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    footer { background: #ffffff; padding: 20px 30px; color: #0b0c0c; border-top: 1px solid #b1b4b6; font-size: 14px; text-align: center; }
+    @media (max-width: 768px) { h1 { font-size: 32px; } }
+  </style>
+</head>
+<body>
+<header style="background:#e0531a;padding:12px 0;border-bottom:none;">
+  <div style="max-width:960px;margin:0 auto;padding:0 30px;">
+    <a href="/" style="text-decoration:none;display:inline-flex;align-items:center;gap:10px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="11" height="11" fill="white"/>
+        <rect x="13" y="0" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="0" y="13" width="11" height="11" fill="white" fill-opacity="0.5"/>
+        <rect x="13" y="13" width="11" height="11" fill="white"/>
+      </svg>
+      <span style="color:white;font-size:15px;font-weight:700;font-family:arial,sans-serif;letter-spacing:-0.3px;">Prototype Engine</span>
+    </a>
+  </div>
+</header>
+<main>
+<div style="max-width: 600px;">
+    <div>
+      <h1>Build a GOV.UK prototype</h1>
+      <p class="lede">Describe your service and Claude will build a working GOV.UK prototype — no code required.</p>
+      <form id="generateForm" enctype="multipart/form-data">
+        <div>
+          <label for="q1">Who are the users and what are their needs?</label>
+          <textarea id="q1" name="q1" rows="3" placeholder="Parents applying for free school meals. They may be anxious and need to know quickly if they are eligible."></textarea>
+        </div>
+        <div>
+          <label for="q2">What does the service need to achieve?</label>
+          <textarea id="q2" name="q2" rows="3" placeholder="Help parents apply quickly. If ineligible, signpost to other support rather than leaving them at a dead end."></textarea>
+        </div>
+        <div>
+          <label for="q3">What content principles should we apply?</label>
+          <textarea id="q3" name="q3" rows="3" placeholder="Plain, warm and direct. No jargon. Use 'you' and 'your child' throughout."></textarea>
+        </div>
+        <div>
+          <label for="pdf">Upload a PDF (optional)</label>
+          <p class="hint">Policy documents, existing service specs, research findings.</p>
+          <label class="file-upload-label" for="pdf">Choose file</label>
+          <input type="file" id="pdf" name="pdf" accept=".pdf">
+          <div class="file-name" id="fileName">No file chosen</div>
+        </div>
+        <div>
+          <label for="url">Reference URL (optional)</label>
+          <p class="hint">A live service or document to reference.</p>
+          <input type="url" id="url" name="url" placeholder="https://www.gov.uk/example">
+        </div>
+        <button type="submit" class="generate-btn" id="generateBtn">
+          <span id="btnText">Generate prototype</span>
+          <svg class="btn-arrow" id="btnArrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60">
+            <path d="M0 20h40l-8-8 4-4 16 16-16 16-4-4 8-8H0z"/>
+          </svg>
+        </button>
+      </form>
+
+      <!-- Progress panel -->
+      <div class="progress-panel" id="progressPanel">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progressBar"></div>
+        </div>
+        <ul class="progress-steps">
+          <li id="step-pdf" style="display:none;"><span class="step-icon" id="icon-pdf">–</span> Reading document</li>
+          <li id="step-claude"><span class="step-icon" id="icon-claude">–</span> Generating with Claude</li>
+          <li id="step-github"><span class="step-icon" id="icon-github">–</span> Pushing to GitHub</li>
+          <li id="step-render"><span class="step-icon" id="icon-render">–</span> Creating Render service</li>
+          <li id="step-deploy"><span class="step-icon" id="icon-deploy">–</span> Waiting for prototype to go live</li>
+        </ul>
+      </div>
+
+      <!-- Done panel -->
+      <div class="done-panel" id="donePanel">
+        <div class="done-header">
+          <div class="done-tick-circle">
+            <svg viewBox="0 0 24 24"><path d="M4 12l5 5L20 7"/></svg>
+          </div>
+          <div class="done-title">Your prototype is live</div>
+        </div>
+        <p class="done-sub">It is ready to use. Share the link with your team.</p>
+        <a href="#" id="openProtoBtn" class="open-proto-btn" target="_blank" rel="noopener">Open prototype</a>
+        <div id="pdfTruncatedNotice" style="display:none; margin-top: 20px; padding: 15px 20px; border-left: 10px solid #b1b4b6; font-size: 16px; color: #0b0c0c;">Your document was long so we summarised the most relevant parts. The prototype is based on that summary.</div>
+      </div>
+
+      <!-- Error panel -->
+      <div class="error-panel" id="errorPanel">
+        <div class="error-title">Something went wrong</div>
+        <div class="error-msg" id="errorMsg"></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+<footer>Built on GOV.UK Prototype Kit v13 &middot; Powered by Claude</footer>
+
+<script>
+  document.getElementById('pdf').addEventListener('change', function() {
+    document.getElementById('fileName').textContent = this.files[0] ? this.files[0].name : 'No file chosen';
+  });
+
+  function setStep(stepId, iconId, state) {
+    const li = document.getElementById(stepId);
+    const icon = document.getElementById(iconId);
+    li.className = state;
+    if (state === 'active') icon.textContent = '●';
+    else if (state === 'done') icon.textContent = '✓';
+    else icon.textContent = '–';
+  }
+
+  let progressTimer = null;
+
+  function startFakeProgress(hasPdf) {
+    const bar = document.getElementById('progressBar');
+    const pdfStep = document.getElementById('step-pdf');
+    let steps;
+
+    if (hasPdf) {
+      pdfStep.style.display = '';
+      steps = [
+        { stepId: 'step-pdf',     iconId: 'icon-pdf',     delay: 0,     pct: 10 },
+        { stepId: 'step-claude',  iconId: 'icon-claude',  delay: 12000, pct: 25 },
+        { stepId: 'step-github',  iconId: 'icon-github',  delay: 24000, pct: 50 },
+        { stepId: 'step-render',  iconId: 'icon-render',  delay: 36000, pct: 65 },
+        { stepId: 'step-deploy',  iconId: 'icon-deploy',  delay: 50000, pct: 80 }
+      ];
+    } else {
+      pdfStep.style.display = 'none';
+      steps = [
+        { stepId: 'step-claude',  iconId: 'icon-claude',  delay: 0,     pct: 15 },
+        { stepId: 'step-github',  iconId: 'icon-github',  delay: 18000, pct: 45 },
+        { stepId: 'step-render',  iconId: 'icon-render',  delay: 30000, pct: 65 },
+        { stepId: 'step-deploy',  iconId: 'icon-deploy',  delay: 45000, pct: 80 }
+      ];
+    }
+
+    let prevStepId = null, prevIconId = null;
+    steps.forEach(function(s) {
+      const t = setTimeout(function() {
+        if (prevStepId) setStep(prevStepId, prevIconId, 'done');
+        setStep(s.stepId, s.iconId, 'active');
+        bar.style.width = s.pct + '%';
+        prevStepId = s.stepId;
+        prevIconId = s.iconId;
+      }, s.delay);
+      if (!progressTimer) progressTimer = [];
+      progressTimer.push(t);
+    });
+  }
+
+  function stopFakeProgress() {
+    if (progressTimer) progressTimer.forEach(clearTimeout);
+    progressTimer = null;
+  }
+
+  document.getElementById('generateForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const btn = document.getElementById('generateBtn');
+    const btnText = document.getElementById('btnText');
+    const btnArrow = document.getElementById('btnArrow');
+    const progressPanel = document.getElementById('progressPanel');
+    const donePanel = document.getElementById('donePanel');
+    const errorPanel = document.getElementById('errorPanel');
+    const bar = document.getElementById('progressBar');
+    const hasPdf = document.getElementById('pdf').files.length > 0;
+
+    donePanel.className = 'done-panel';
+    errorPanel.className = 'error-panel';
+    document.getElementById('pdfTruncatedNotice').style.display = 'none';
+    progressPanel.className = 'progress-panel visible';
+    bar.style.width = '5%';
+    bar.className = 'progress-bar-fill';
+    var allSteps = ['step-claude','step-github','step-render','step-deploy'];
+    if (hasPdf) allSteps.unshift('step-pdf');
+    allSteps.forEach(function(id) {
+      document.getElementById(id).className = '';
+      var iconId = 'icon-' + id.replace('step-', '');
+      document.getElementById(iconId).textContent = '–';
+    });
+
+    btn.disabled = true;
+    btnArrow.style.display = 'none';
+    btnText.innerHTML = '<span class="spinner"></span> Generating&hellip;';
+
+    startFakeProgress(hasPdf);
+
+    try {
+      const formData = new FormData(this);
+      const response = await fetch('/generate-v3', { method: 'POST', body: formData });
+
+      stopFakeProgress();
+
+      if (!response.ok) {
+        const err = await response.json().catch(function() { return { error: 'Unknown error' }; });
+        throw new Error(err.error || 'Something went wrong');
+      }
+
+      const result = await response.json();
+
+      bar.style.width = '100%';
+      bar.className = 'progress-bar-fill complete';
+      var doneSteps = ['step-claude','step-github','step-render','step-deploy'];
+      if (hasPdf) doneSteps.unshift('step-pdf');
+      doneSteps.forEach(function(id) {
+        setStep(id, 'icon-' + id.replace('step-', ''), 'done');
+      });
+
+      progressPanel.className = 'progress-panel';
+      document.getElementById('openProtoBtn').href = result.url;
+      donePanel.className = 'done-panel visible';
+
+      if (result.pdfTruncated) {
+        document.getElementById('pdfTruncatedNotice').style.display = 'block';
+      }
+
+    } catch (err) {
+      stopFakeProgress();
+      progressPanel.className = 'progress-panel';
+      document.getElementById('errorMsg').textContent = err.message || 'Try again or simplify your brief.';
+      errorPanel.className = 'error-panel visible';
+    }
+
+    btn.disabled = false;
+    btnArrow.style.display = '';
+    btnText.textContent = 'Generate prototype';
+  });
+</script>
+</body>
+</html>`);
+});
+
+// ─── v3 Generate endpoint (uses v2 branching logic) ──────────────────────────
+
+app.post('/generate-v3', upload.single('pdf'), async (req, res) => {
+  try {
+    const { q1, q2, q3, url } = req.body;
+    const brief = [q1, q2, q3].filter(Boolean).map((s, i) => {
+      const labels = ['Users and needs', 'Service goals', 'Content principles'];
+      return labels[i] + ': ' + s.trim();
+    }).join('\n\n');
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    const githubToken = process.env.GITHUB_TOKEN;
+    const renderApiKey = process.env.RENDER_API_KEY;
+    const renderOwnerId = process.env.RENDER_OWNER_ID;
+    const githubUsername = process.env.GITHUB_USERNAME;
+
+    if (!apiKey) return res.status(500).json({ error: 'ANTHROPIC_API_KEY not set' });
+    if (!githubToken) return res.status(500).json({ error: 'GITHUB_TOKEN not set' });
+    if (!renderApiKey) return res.status(500).json({ error: 'RENDER_API_KEY not set' });
+    if (!renderOwnerId) return res.status(500).json({ error: 'RENDER_OWNER_ID not set' });
+    if (!githubUsername) return res.status(500).json({ error: 'GITHUB_USERNAME not set' });
+    if (!q1 || q1.trim().length < 5) return res.status(400).json({ error: 'Tell us who the users are and what they need' });
+
+    // Step 1: PDF summarisation
+    let pdfSummary = null;
+    let pdfTruncated = false;
+    if (req.file) {
+      try {
+        const pdfData = await pdfParse(req.file.buffer);
+        let pdfText = pdfData.text;
+        if (pdfText.length > 15000) {
+          if (pdfText.length > 80000) {
+            pdfText = pdfText.slice(0, 80000);
+            pdfTruncated = true;
+          }
+          try {
+            const summaryResponse = await fetch('https://api.anthropic.com/v1/messages', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': apiKey,
+                'anthropic-version': '2023-06-01'
+              },
+              body: JSON.stringify({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 2000,
+                system: 'You are a government policy analyst. You will receive a service brief and a policy document. Extract and summarise only the content relevant to the brief. Return a clean markdown summary covering: eligibility rules and criteria, evidence requirements, key process steps and timeframes, any user-facing terminology that must be used, and any exclusions or special cases. Be concise. Maximum 1500 words.',
+                messages: [{ role: 'user', content: `Brief: ${brief.trim()}\n\nDocument:\n${pdfText}` }]
+              })
+            });
+            if (summaryResponse.ok) {
+              const summaryData = await summaryResponse.json();
+              pdfSummary = summaryData.content[0].text.trim();
+            }
+          } catch (e) {
+            console.error('PDF summarisation failed, continuing without summary:', e.message);
+          }
+        } else {
+          pdfSummary = pdfText;
+        }
+      } catch (e) {
+        console.error('PDF parsing failed:', e.message);
+      }
+    }
+
+    // Step 2: Claude generation (using v2 branching prompt and builder)
+    let userMessage = `Brief: ${brief.trim()}`;
+    if (pdfSummary) {
+      userMessage += `\n\nPolicy document summary — use this to inform eligibility rules, question wording, hints, confirmation content, and any guidance:\n${pdfSummary}`;
+    }
+    if (url && url.trim()) userMessage += `\n\nReference URL: ${url.trim()}`;
+    userMessage += '\n\nReturn only the JSON object. No explanation. No markdown.';
+
+    const claudeResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8000,
+        system: gdsPromptV2,
+        messages: [{ role: 'user', content: userMessage }]
+      })
+    });
+
+    if (!claudeResponse.ok) {
+      const err = await claudeResponse.json();
+      throw new Error(err.error?.message || 'Claude API error');
+    }
+
+    const claudeData = await claudeResponse.json();
+    const rawText = claudeData.content[0].text.trim();
+
+    let spec;
+    try {
+      const clean = rawText.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+      spec = JSON.parse(clean);
+    } catch (e) {
+      throw new Error('Claude returned invalid JSON. Try simplifying your brief.');
+    }
+
+    if (!spec.serviceName || !spec.questions || spec.questions.length < 1) {
+      throw new Error('Prototype spec incomplete. Try again.');
+    }
+
+    // Step 3: Build and push to GitHub
+    const files = buildPrototypeFilesV2(spec);
+    const timestamp = Date.now();
+    const repoName = `prototype-${timestamp}`;
+
+    await createGitHubRepo(repoName, githubToken);
+    await pushAllFiles(githubUsername, repoName, files, githubToken);
+
+    const repoUrl = `https://github.com/${githubUsername}/${repoName}`;
+
+    // Step 4: Create Render service
+    const serviceName = `prototype-${timestamp}`;
+    const renderData = await createRenderService(repoUrl, serviceName, renderApiKey, renderOwnerId);
+
+    const serviceId = renderData.service?.id;
+    if (!serviceId) throw new Error('Render did not return a service ID');
+
+    // Step 5: Poll until actually live
     const protoUrl = `https://${serviceName}.onrender.com`;
     await pollUntilLive(protoUrl);
     await new Promise(r => setTimeout(r, 20000));
