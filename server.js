@@ -397,15 +397,15 @@ app.get('/v1', (req, res) => {
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="q1">Who are the users and what are their needs?</label>
-          <textarea id="q1" name="q1" rows="3" placeholder="Parents applying for free school meals. They may be anxious and need to know quickly if they are eligible."></textarea>
+          <textarea id="q1" name="q1" rows="3" placeholder="e.g. Parents applying for free school meals"></textarea>
         </div>
         <div>
           <label for="q2">What does the service need to achieve?</label>
-          <textarea id="q2" name="q2" rows="3" placeholder="Help parents apply quickly. If ineligible, signpost to other support rather than leaving them at a dead end."></textarea>
+          <textarea id="q2" name="q2" rows="3" placeholder="e.g. Help parents check eligibility and apply"></textarea>
         </div>
         <div>
           <label for="q3">What content principles should we apply?</label>
-          <textarea id="q3" name="q3" rows="3" placeholder="Plain, warm and direct. No jargon. Use 'you' and 'your child' throughout."></textarea>
+          <textarea id="q3" name="q3" rows="3" placeholder="e.g. Plain English, no jargon"></textarea>
         </div>
         <div>
           <label for="pdf">Upload a PDF (optional)</label>
@@ -889,15 +889,15 @@ app.get('/v2', (req, res) => {
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="q1">Who are the users and what are their needs?</label>
-          <textarea id="q1" name="q1" rows="3" placeholder="Parents applying for free school meals. They may be anxious and need to know quickly if they are eligible."></textarea>
+          <textarea id="q1" name="q1" rows="3" placeholder="e.g. Parents applying for free school meals"></textarea>
         </div>
         <div>
           <label for="q2">What does the service need to achieve?</label>
-          <textarea id="q2" name="q2" rows="3" placeholder="Help parents apply quickly. If ineligible, signpost to other support rather than leaving them at a dead end."></textarea>
+          <textarea id="q2" name="q2" rows="3" placeholder="e.g. Help parents check eligibility and apply"></textarea>
         </div>
         <div>
           <label for="q3">What content principles should we apply?</label>
-          <textarea id="q3" name="q3" rows="3" placeholder="Plain, warm and direct. No jargon. Use 'you' and 'your child' throughout."></textarea>
+          <textarea id="q3" name="q3" rows="3" placeholder="e.g. Plain English, no jargon"></textarea>
         </div>
         <div>
           <label for="pdf">Upload a PDF (optional)</label>
@@ -1341,15 +1341,15 @@ app.get('/v3', (req, res) => {
       <form id="generateForm" enctype="multipart/form-data">
         <div>
           <label for="q1">Who are the users and what are their needs?</label>
-          <textarea id="q1" name="q1" rows="3" placeholder="Parents applying for free school meals. They may be anxious and need to know quickly if they are eligible."></textarea>
+          <textarea id="q1" name="q1" rows="3" placeholder="e.g. Parents applying for free school meals"></textarea>
         </div>
         <div>
           <label for="q2">What does the service need to achieve?</label>
-          <textarea id="q2" name="q2" rows="3" placeholder="Help parents apply quickly. If ineligible, signpost to other support rather than leaving them at a dead end."></textarea>
+          <textarea id="q2" name="q2" rows="3" placeholder="e.g. Help parents check eligibility and apply"></textarea>
         </div>
         <div>
           <label for="q3">What content principles should we apply?</label>
-          <textarea id="q3" name="q3" rows="3" placeholder="Plain, warm and direct. No jargon. Use 'you' and 'your child' throughout."></textarea>
+          <textarea id="q3" name="q3" rows="3" placeholder="e.g. Plain English, no jargon"></textarea>
         </div>
         <div>
           <label for="pdf">Upload a PDF (optional)</label>
